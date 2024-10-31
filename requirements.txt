@@ -1,0 +1,7 @@
+numpy
+pandas
+gdown
+ipykernel
+ipython
+mujoco
+opencv-python
