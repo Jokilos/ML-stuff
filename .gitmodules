@@ -1,0 +1,3 @@
+[submodule "RC/repo"]
+	path = RC/repo
+	url = git@github.com:mim-ml-teaching/public-rc-2024-25.git
