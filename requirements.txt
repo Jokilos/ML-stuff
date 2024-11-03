@@ -4,3 +4,5 @@ gdown
 ipykernel
 ipython
 opencv-python
+mujoco
+jupyter
