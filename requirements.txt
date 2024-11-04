@@ -9,3 +9,6 @@ jupyter
 scipy
 plotly
 statsmodels
+torchvision
+clearml
+tdqm
