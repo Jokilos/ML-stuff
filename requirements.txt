@@ -6,3 +6,6 @@ ipython
 opencv-python
 mujoco
 jupyter
+scipy
+plotly
+statsmodels
