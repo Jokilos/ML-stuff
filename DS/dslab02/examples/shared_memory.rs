@@ -7,7 +7,7 @@ use std::thread::spawn;
 fn immutable_data_is_sync() {
     // `Arc<T>` is Send + Sync when `T` is Send + Sync.
     // `Vec<T>` is Sync/Send when `T` is Sync/Send.
-    let vec = Arc::new(vec![1, 2, 3]);
+    let vec: Arc<Vec<u32>> = Arc::new(vec![2, 2, 3]);
     let vec_clone = vec.clone();
 
     let t1 = spawn(move || {

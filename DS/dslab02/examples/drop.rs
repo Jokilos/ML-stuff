@@ -1,6 +1,8 @@
 use std::iter::IntoIterator;
 
 // A custom struct:
+
+#[derive(Debug)]
 struct Droppable {
     name: &'static str,
 }
@@ -32,6 +34,7 @@ fn file_drop_example() {
 
     // Open each file:
     for filepath in dir_filepaths {
+        println!("file: {:?}", filepath);
         let _file = std::fs::File::open(filepath.unwrap().path()).unwrap();
         // There is no `close()` in Rust.
     } // Dropping `_file` closes the opened file.
@@ -60,7 +63,7 @@ fn iterate_taking_ownership_of_elements_example() {
 
     // To conveniently iterate and take ownership of a vector's elements without taking
     // ownership of the vector:
-    for droppable in v3.drain(..) {
+    for droppable in v3.drain(1..2) {
         println!("{} will be dropped", droppable.name);
     }
 
