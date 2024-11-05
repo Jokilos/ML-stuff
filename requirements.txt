@@ -1,0 +1,14 @@
+numpy
+pandas
+gdown
+ipykernel
+ipython
+opencv-python
+mujoco
+jupyter
+scipy
+plotly
+statsmodels
+torchvision
+clearml
+tdqm
