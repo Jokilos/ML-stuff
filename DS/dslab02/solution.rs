@@ -1,5 +1,7 @@
+use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Condvar, Mutex};
-use std::thread::JoinHandle;
+use std::rc::Rc;
+use std::thread::{spawn, JoinHandle, Thread};
 
 type Task = Box<dyn FnOnce() + Send>;
 
@@ -8,17 +10,54 @@ type Task = Box<dyn FnOnce() + Send>;
 
 /// The thread pool.
 pub struct Threadpool {
+    worker_count: usize,
+    join_handles: Vec<JoinHandle<()>>,
+    available_tasks: <Vec<Task>>,
+    is_running: bool,
+
     // Add here any fields you need.
     // We suggest storing handles of the worker threads, submitted tasks,
     // and information whether the pool is running or is shutting down.
 }
 
+// struct Worker{
+//     available_tasks: Arc<(Mutex<Vec<Task>>, Condvar)>,
+//     is_running: AtomicBool,
+// }
+type TaskArc = Arc<(Mutex<Vec<Task>>, Condvar)>;
+
+fn is_sync<T: Sync>() {}
+
 impl Threadpool {
     /// Create new thread pool with `workers_count` workers.
     pub fn new(workers_count: usize) -> Self {
-        unimplemented!("Initialize necessary data structures.");
+        let available_tasks: TaskArc =
+            Arc::new((Mutex::new(Vec::new()), Condvar::new()));
 
+        let mut tp = Threadpool{
+            worker_count: workers_count,
+            join_handles: Vec::new(),
+            available_tasks: available_tasks,
+            is_running: Arc::new(AtomicBool::new(true)),
+        };
+
+        is_sync::<Threadpool>();
+        
         for _ in 0..workers_count {
+            // let at_cloned = 
+            //     tp.available_tasks.clone();
+            
+            // let ir_cloned  = tp.is_running.clone();
+            // let mut &tp = tp;            
+
+            let thread = spawn(move || {
+                &tp.worker_loop();
+            } );
+
+            tp.join_handles.push(thread);
+
+            //println!("{:?}", tp);
+
             unimplemented!("Create the workers.");
         }
 
@@ -33,7 +72,7 @@ impl Threadpool {
     // We suggest extracting the implementation of the worker to an associated
     // function, like this one (however, it is not a part of the public
     // interface, so you can delete it if you implement it differently):
-    fn worker_loop(/* unimplemented!() */) {
+    fn worker_loop(&self) {
         unimplemented!("Initialize necessary variables.");
 
         loop {
