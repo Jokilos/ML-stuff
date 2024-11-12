@@ -1,5 +1,3 @@
-mod template;
-
 mod public_test;
 mod solution;
 
