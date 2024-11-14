@@ -1,3 +1,6 @@
 [submodule "RC/repo"]
 	path = RC/repo
 	url = git@github.com:mim-ml-teaching/public-rc-2024-25.git
+[submodule "DNN/repo"]
+	path = DNN/repo
+	url = https://github.com/mim-ml-teaching/public-dnn-2024-25.git
