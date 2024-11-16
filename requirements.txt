@@ -13,4 +13,5 @@ matplotlib
 scikit-learn
 torchvision
 clearml
+memory-profiler
 tdqm

@@ -1,3 +1,4 @@
+use core::option::Option::None;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
@@ -28,12 +29,11 @@ struct Worker{
 impl Worker{
     fn worker_loop(&self) {
         let thread_id = thread::current().id();
-
+        let mut my_task: Option<Task>;
         let wait_for_tasks= |vec: &Vec<Task>, ir: Arc<AtomicBool>| {
             let isr = ir.load(Ordering::Relaxed);
             let isemp = vec.is_empty();
 
-            println!("isr: {}, ise: {} id: {:?}", isr, isemp, thread_id);
             return isr && isemp
         };
 
@@ -49,23 +49,24 @@ impl Worker{
                     // is required because of the possible spurious wakeups:
                     guard = cond.wait(guard).unwrap();
                 }                
-
+            
                 // The predicate holds and the mutex is locked here.
-                let my_task = guard.pop();
-                match my_task{
-                    Some(t) => t(),
-                    None => {
-                        let exit = !self.is_running.load(Ordering::Relaxed);
+                my_task = guard.pop();
+            }
 
-                        if exit {
-                            println!("{:?} exiting!", thread_id);
-                            return;
-                        }
-                        else{
-                            panic!("The vector was not supposed to be empty!")
-                        }
-                    },
-                }
+            match my_task{
+                Some(t) => t(),
+                None => {
+                    let exit = !self.is_running.load(Ordering::Relaxed);
+
+                    if exit {
+                        println!("{:?} exiting!", thread_id);
+                        return;
+                    }
+                    else{
+                        panic!("The vector was not supposed to be empty!")
+                    }
+                },
             }
 
             //Be careful with locking! The tasks shall be executed concurrently.
@@ -130,7 +131,7 @@ impl Threadpool {
         //We suggest saving the task, and notifying the worker(s).
     }
 
-  }
+}
 
 impl Drop for Threadpool {
     /// Gracefully end the thread pool.
@@ -139,17 +140,17 @@ impl Drop for Threadpool {
     /// and until all threads are joined.
     
     fn drop(&mut self) {
-        self.is_running.store(false, Ordering::Relaxed);
+        {
+            let (lock, cond) = &*self.available_tasks;
+            let _guard = lock.lock().unwrap();
+            
+            self.is_running.store(false, Ordering::Relaxed);
+            cond.notify_all();
+        }
         
-        let (_, cond) = &*self.available_tasks;
-
-        cond.notify_one();
-
         for handle in self.join_handles.drain(..){
             handle.join().unwrap();
-            cond.notify_one();
         }
-
         //Notify the workers that the thread pool is to be shut down.
         //Wait for all threads to be finished.
     }
