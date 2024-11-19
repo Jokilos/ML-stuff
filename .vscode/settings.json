@@ -1,6 +1,6 @@
 {
     "rust-analyzer.linkedProjects": [
-        "DS/dslab03/Cargo.toml"
+        "DS/dslab06/Cargo.toml"
     ],
     "rust-analyzer.checkOnSave": true,
 }
