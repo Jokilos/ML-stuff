@@ -1,0 +1,10 @@
+google green light - they manipulate lights to reduce emissions, free for now, probably in biggest cities for now
+
+GLOSA papers - https://www.sciencedirect.com/science/article/abs/pii/S0968090X17301675?via%3Dihub
+
+EnLighten by Connected Signals - https://connectedsignals.com/technology-2/#enLighten
+
+Car manufacturer's systems:
+- Audi
+- Mercedes - Car to X communication
+- Lexus maybe? - https://newsroom.lexus.eu/intelligent-lexus-navigation-system-enhances-fuel-economy/

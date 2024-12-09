@@ -15,3 +15,5 @@ torchvision
 clearml
 memory-profiler
 tdqm
+nbimporter
+cairosvg
