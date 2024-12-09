@@ -17,3 +17,4 @@ memory-profiler
 tdqm
 nbimporter
 cairosvg
+nb-mypy
