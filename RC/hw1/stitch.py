@@ -575,14 +575,14 @@ def task4_snippet():
 
 def find_optimal_seam(L, R, L_margin, R_margin):
     abs = np.abs(L - R)
-
     # approximately: 0.3 Red + 0.59 Green + 0.11 * Blue
     grey = 0.11 * abs[:, :, 0] + 0.59 * abs[:, :, 1] + 0.3 * abs[:, :, 2]
+
     h, w = grey.shape
     grey[:, np.arange(L_margin + 20)] = 255
     grey[:, np.arange(R_margin - 20, w)] = 255
 
-    # cv2_imshow(grey.astype(np.uint8))
+    cv2_imshow(grey.astype(np.uint8))
     grey **= 2
     grey = grey.astype(int)
 
@@ -621,6 +621,8 @@ def put_on_image(img, data, span):
 
 # # Task 5
 
+import gc
+
 def stitch_images(points_left, points_right, imgs = None, filenames = None, leftcentric = True):
     left, right = inputs_parse(imgs, filenames)
 
@@ -647,7 +649,7 @@ def stitch_images(points_left, points_right, imgs = None, filenames = None, left
         (span_right[0][0] - span[0][0]), 
         span_left[0][1],
     )
-    
+
     xmin = find_optimal_seam(new_left, new_right, margin_left, margin_right)
 
     h, w, _ = new_size
@@ -658,9 +660,7 @@ def stitch_images(points_left, points_right, imgs = None, filenames = None, left
     # visualize the stitch
     # for y in range(h):
     #     new_left[y, xmin[y], :] = RED
-
-    # show stitched img
-    # cv2_imshow(new_left)
+    cv2_imshow(new_left)
 
     return new_left
 
@@ -736,8 +736,9 @@ def stitch2_superglue(imgs = None, filenames = None, script_debug = False, leftc
     return stitch_images(points_right, points_left, imgs=[left, right], leftcentric=leftcentric)
 
 def task6_snippet():
-    img = stitch2_superglue(filenames=['data3/img3.png', 'data3/img2.png'])
-    cv2.imwrite('task_solutions/task6_solution.png', img)
+    img = stitch2_superglue(filenames=['data3/img1.png', 'data3/img2.png'])
+    cv2_imshow(img)
+    # cv2.imwrite('task_solutions/task6_solution.png', img)
 
 # # Task 7
 
@@ -766,14 +767,14 @@ def task7_snippet():
     img = stitch5_superglue(filenames=filenames)
     cv2.imwrite('task_solutions/task7_solution.png', img)
 
-undistort_all()
-task1_snippet()
-task2_snippet()
-task3_snippet()
-task4_snippet()
-task5_snippet()
+# undistort_all()
+# task1_snippet()
+# task2_snippet()
+# task3_snippet()
+# task4_snippet()
+# task5_snippet()
 task6_snippet()
-task7_snippet()
+# task7_snippet()
 
 # images in stitching functions are passed in a left-to-right order
 
