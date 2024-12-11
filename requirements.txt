@@ -18,3 +18,5 @@ tdqm
 nbimporter
 cairosvg
 nb-mypy
+timm
+ruff
