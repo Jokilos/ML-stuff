@@ -4,3 +4,6 @@
 [submodule "DNN/repo"]
 	path = DNN/repo
 	url = git@github.com:mim-ml-teaching/public-dnn-2024-25.git
+[submodule "RC/hw1/SuperGluePretrainedNetwork"]
+	path = RC/hw1/SuperGluePretrainedNetwork
+	url = git@github.com:magicleap/SuperGluePretrainedNetwork.git
