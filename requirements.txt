@@ -11,15 +11,17 @@ plotly
 statsmodels
 matplotlib
 scikit-learn
-torchvision
+torch
+# torchvision
+# timm
 clearml
 memory-profiler
 tdqm
 nbimporter
 cairosvg
 nb-mypy
-timm
 ruff
 transformers
 sentencepiece
 accelerate
+seaborn
