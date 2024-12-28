@@ -14,8 +14,7 @@ import cv2
 from numpy.typing import NDArray
 
 
-TASK_ID = 1
-
+TASK_ID = 2
 
 world_xml_path = f"car_{TASK_ID}.xml"
 model = mujoco.MjModel.from_xml_path(world_xml_path)
@@ -81,13 +80,17 @@ def PIL_show(img, colorspace = 'RGB'):
     pil_image = Image.fromarray(img)
     pil_image.show()
 
-def cut_vertical_strip(img, width):
+def cut_vertical_strip(img, width, cut_bottom = None):
     _, W, _ = img.shape
     cut_from, cut_to = (W - width) // 2, (W + width) // 2
-    return img[:, cut_from : cut_to, :]
+    if cut_bottom is None:
+        return img[:, cut_from : cut_to, :]
+    else:
+        return img[: -cut_bottom, cut_from : cut_to, :]
 
 def find_colored_pixels(img, color = 'red'):
     hsv_img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    lower2 = upper2 = None
 
     if color == 'red':
         lower1 = np.array([0, 50, 50])    
@@ -95,22 +98,55 @@ def find_colored_pixels(img, color = 'red'):
         lower2 = np.array([170, 50, 50])  
         upper2 = np.array([180, 255, 255])
 
-    mask1 = cv2.inRange(hsv_img, lower1, upper1)
-    mask2 = cv2.inRange(hsv_img, lower2, upper2)
-    mask = cv2.bitwise_or(mask1, mask2)
+    if color == 'grey':
+        lower1 = np.array([ 0, 0, 66])
+        upper1 = np.array([ 10, 50, 166])
+
+    if color == 'green':
+        lower1 = np.array([35, 50, 50])
+        upper1 = np.array([85, 255, 255])
+
+    if color == 'blue':
+        lower1 = np.array([110, 138, 65])
+        upper1 = np.array([130, 255, 255])
+
+    mask = cv2.inRange(hsv_img, lower1, upper1)
+
+    if lower2 is not None:
+        mask2 = cv2.inRange(hsv_img, lower2, upper2)
+        mask = cv2.bitwise_or(mask, mask2)
+
+    # if color == 'grey':
+        # PIL_show(img)
+        # PIL_show(mask)
+        # time.sleep(1)
 
     return mask
 
-def cut_strip_and_count(img, strip_width, color = 'red'):
-    img = cut_vertical_strip(img, strip_width)
+def cut_strip_and_count(img, strip_width, color = 'red', cut_bottom = None, show = False):
+    img = cut_vertical_strip(img, strip_width, cut_bottom)
     red_mask = find_colored_pixels(img, color = color) 
     pixels_detected = np.sum(red_mask > 0)
 
+    if(show and pixels_detected > 0):
+        PIL_show(img)
+        PIL_show(red_mask)
+        time.sleep(2) 
+
     return pixels_detected
     
-def step(forward, turn):
+def step(forward, turn, verbose = False, show = False):
     controls = {"forward": forward, "turn": turn}
     img = sim_step(200, view=True, **controls)
+
+    if verbose:
+        print(data.body("car").xpos)
+        print(data.body("target-ball").xpos)
+
+    if show:
+        PIL_show(img)
+        time.sleep(1)
+
     return img
 
 # /TODO
@@ -155,53 +191,187 @@ def task_1():
     while pixels_detected < small_treshold:
         img = step(0.3, 0)
         pixels_detected = cut_strip_and_count(img, img.shape[1], 'red')
-        print(pixels_detected)
 
     # making final adjustments
     while pixels_detected < big_threshold:
         img = step(0.03, 0)
         pixels_detected = cut_strip_and_count(img, img.shape[1], 'red')
-        print(pixels_detected)
 
     time.sleep(1000)
-    return 0
+    return
     # /TODO
 
 
 
-    # TODO: add addditional functions/classes for task 2 if needed
+# TODO: add addditional functions/classes for task 2 if needed
+### TRASH CODE
+
+    ### CODE FOR CHECKING IMAGE SIMILARITY
+    # prev = cut_strip_and_count(img, img.shape[1], 'green')
+    # for _ in range(12):
+    #     this = cut_strip_and_count(step(0, 0.5), img.shape[1], 'green')
+
+    #     print(np.abs(prev - this))
+    #     if np.abs(prev - this) < 5000:
+    #         prev = cut_strip_and_count(step(0, 5), img.shape[1], 'green')
+            
+    #     prev = this
+    #     time.sleep(0.5)
+    ###
+
+    ### CODE FOR TURNING LEFT WITH COLLISIONS
+    # prev = this = cut_strip_and_count(img, small_strip_width, 'green')
+    # swaps = 0
+    # while swaps < 2:
+    #     img = step(0, -0.05)
+    #     this = cut_strip_and_count(img, small_strip_width, 'green')
+    #     if np.abs(prev - this) > 200:
+    #         swaps = swaps + 1
+    #     prev = this 
+    # pixels_list = [this]
+    # pixels_detected = this 
+    # while pixels_detected > 100:
+    #     img = step(0, small_step)
+    #     pixels_detected = cut_strip_and_count(img, small_strip_width, 'green')
+    #     pixels_list.append(pixels_detected)
+    # first = len(pixels_list) - 1
+
+    # while pixels_detected < 100:
+    #     img = step(0, small_step)
+    #     pixels_detected = cut_strip_and_count(img, small_strip_width, 'green')
+    #     pixels_list.append(pixels_detected)
+    # last = len(pixels_list) - 1
+
+    # print(np.array(pixels_list))
+    # middle = (first + last) // 2
+    # print(middle)
+
+    # turn_back = len(pixels_list) - middle - 1
+    ###
+
+
+###
+
+def low_high_list(arr, threshold = 0):
+    arr = np.array(arr)
+    check = arr > threshold
+    args = list(zip(check[:-1], check[1:]))
+    res = [prev for prev, next in args if prev != next]
+
+    if len(res) == 0:
+        return [arr[0] > threshold]
+    elif res[-1] == check[-1]:
+        return res
+    else:
+        return res + [check[-1]]
+   
+def check_high_low_idx(arr, threshold = 0):
+    arr = np.array(arr)
+    check = arr > threshold
+    args = list(zip(check[:-1], check[1:], np.arange(len(arr))[1:]))
+    res = [idx for prev, next, idx in args if prev != next]
+    
+    return res
+
+def pillar_based_revolution(strip_width, step_size = 0.15):
+    pd_list = []
+    revolution_done = False 
+    while not revolution_done:
+        img = step(0, step_size)
+        pixels_detected = cut_strip_and_count(img, strip_width, 'grey', cut_bottom = 200)
+        pd_list.append(pixels_detected)
+
+        if pixels_detected > 30:
+            revolution_done = low_high_list(pd_list, 5)[-3:] == [True, False, True]
+            print(low_high_list(pd_list, 0)[-3:])
+
+# /TODO
+
+def task_2():
+    speed = random.uniform(-0.3, 0.3)
+    turn = random.uniform(-0.2, 0.2)
+    controls = {"forward": speed, "turn": turn}
+    img = sim_step(1000, view=True, **controls)
+
+    # TODO: Change the lines below.
+    # For car control, you can use only sim_step function
+
+    pixels_detected = 0
+    small_step = 0.05
+    big_strip_width = 100
+    small_strip_width = 10
+    scan_length = 20
+
+    ### POSITION SCRAMBLING
+    # step(-20, 0)
+    # step(0, 20)
+
+    # Turn around and check if we see pillar twice
+    pillar_based_revolution(big_strip_width)
+
+    # Find and face the middle of the blue wall
+    pixels_list = []
+    for _ in range(scan_length):
+        img = step(0, -small_step)
+        pixels_detected = cut_strip_and_count(img, small_strip_width, 'green')
+        pixels_list.append(pixels_detected)
+
+    first, last = check_high_low_idx(pixels_list, 0)
+    middle = np.ceil((first + last) / 2).astype(int)
+    turn_back = scan_length - middle
+
+    for _ in range(turn_back):
+        img = step(0, small_step)
+
+    # Go back until the blue wall in small enought in our FOV
+    pixels_detected = 1e5
+    while pixels_detected > 1.2e4:
+        img = step(-0.1, 0)
+        pixels_detected = cut_strip_and_count(img, img.shape[1], 'blue')
+        # print(pixels_detected)
+
+    # Once again locate pillar twice
+    pillar_based_revolution(big_strip_width)
+
+    # Precisely face the pillar
+    pillar_based_revolution(small_strip_width * 2, small_step)
+
+    # Turn to face the green wall
+    for _ in range(5):
+        step(0, 0.02)
+
+    # Drive back
+    for _ in range(25):
+        step(-0.1, 0)
+
+    # Face the exit
+    for _ in range(11):
+        step(0, -0.05)
+
+    # Exit the labirynth
+    for _ in range(25):
+        step(0.2, 0)
+
+    # Find the ball
+    task_1()
+
+    time.sleep(100)
     # /TODO
 
-    def task_2():
-        speed = random.uniform(-0.3, 0.3)
-        turn = random.uniform(-0.2, 0.2)
-        controls = {"forward": speed, "turn": turn}
-        img = sim_step(1000, view=True, **controls)
-
-        # TODO: Change the lines below.
-        # For car control, you can use only sim_step function
-        for _ in range(100):
-            print(data.body("car").xpos)
-            print(data.body("target-ball").xpos)
-            controls = {"forward": 0, "turn": 0}
-            img = sim_step(200, view=True, **controls)
-
-        # /TODO
 
 
+def ball_is_close() -> bool:
+    """Checks if the ball is close to the car."""
+    ball_pos = data.body("target-ball").xpos
+    car_pos = data.body("dash cam").xpos
+    print(car_pos, ball_pos)
+    return np.linalg.norm(ball_pos - car_pos) < 0.2
 
-    def ball_is_close() -> bool:
-        """Checks if the ball is close to the car."""
-        ball_pos = data.body("target-ball").xpos
-        car_pos = data.body("dash cam").xpos
-        print(car_pos, ball_pos)
-        return np.linalg.norm(ball_pos - car_pos) < 0.2
 
-
-    def ball_grab() -> bool:
-        """Checks if the ball is inside the gripper."""
-        print(data.body("target-ball").xpos[2])
-        return data.body("target-ball").xpos[2] > 0.1
+def ball_grab() -> bool:
+    """Checks if the ball is inside the gripper."""
+    print(data.body("target-ball").xpos[2])
+    return data.body("target-ball").xpos[2] > 0.1
 
 
 def teleport_by(x: float, y: float) -> None:
@@ -248,6 +418,7 @@ def task_3():
 
     # /TODO
 
+    # /*BOLD TODO*
     assert ball_is_close()
 
     # TODO: Grab the ball
