@@ -135,9 +135,9 @@ def cut_strip_and_count(img, strip_width, color = 'red', cut_bottom = None, show
 
     return pixels_detected
     
-def step(forward, turn, verbose = False, show = False):
+def step(forward, turn, verbose = False, show = False, multiple = 1):
     controls = {"forward": forward, "turn": turn}
-    img = sim_step(200, view=True, **controls)
+    img = sim_step(200 * multiple, view=True, **controls)
 
     if verbose:
         print(data.body("car").xpos)
@@ -173,8 +173,7 @@ def task_1():
         pixels_detected = cut_strip_and_count(img, big_strip_width, 'red')
 
     # scanning left and right for more accurate direction
-    for _ in range(scan_length // 2):
-        _ = step(0, -small_step)
+    step(0, -small_step, multiple = scan_length // 2)
 
     pixels_list = []
     for _ in range(scan_length):
@@ -184,8 +183,7 @@ def task_1():
 
     # turning in the right direction
     turn_back = scan_length - np.argmax(pixels_list) - 1
-    for _ in range(turn_back):
-        img = step(0, -small_step)
+    img = step(0, -small_step, multiple = turn_back)
 
     # getting relatively close to the ball
     while pixels_detected < small_treshold:
@@ -273,8 +271,7 @@ def task_2():
     middle = np.ceil((first + last) / 2).astype(int)
     turn_back = scan_length - middle
 
-    for _ in range(turn_back):
-        img = step(0, small_step)
+    step(0, small_step, multiple = turn_back)
 
     # Go back until the blue wall in small enought in our FOV
     pixels_detected = 1e5
@@ -290,20 +287,16 @@ def task_2():
     pillar_based_revolution(small_strip_width * 2, small_step)
 
     # Turn to face the green wall
-    for _ in range(5):
-        step(0, 0.02)
+    step(0, 0.02, multiple = 5)
 
     # Drive back
-    for _ in range(25):
-        step(-0.1, 0)
+    step(-0.1, 0, multiple = 25)
 
     # Face the exit
-    for _ in range(11):
-        step(0, -0.05)
+    step(0, -0.05, multiple = 11)
 
     # Exit the labirynth
-    for _ in range(25):
-        step(0.2, 0)
+    step(0.2, 0, multiple = 25)
 
     # Find the ball
     task_1()
@@ -362,7 +355,7 @@ def task_3():
     #  - use the dash camera and ArUco markers to precisely locate the car
     #  - move the car to the ball using teleport_by function
 
-    time.sleep(2)
+    time.sleep(200)
     x_dest = random.uniform(-0.2, 0.2)
     y_dest = 1 + random.uniform(-0.2, 0.2)
 
