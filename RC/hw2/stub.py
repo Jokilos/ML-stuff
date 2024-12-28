@@ -14,7 +14,7 @@ import cv2
 from numpy.typing import NDArray
 
 
-TASK_ID = 2
+TASK_ID = 3
 
 world_xml_path = f"car_{TASK_ID}.xml"
 model = mujoco.MjModel.from_xml_path(world_xml_path)
@@ -280,9 +280,6 @@ def task_2():
         pixels_detected = cut_strip_and_count(img, img.shape[1], 'blue')
         # print(pixels_detected)
 
-    # Once again locate pillar twice
-    # pillar_based_revolution(big_strip_width)
-
     # Precisely face the pillar
     pillar_based_revolution(int(small_strip_width * 2.5), small_step * 1.3)
 
@@ -342,6 +339,32 @@ def get_dash_camera_intrinsics():
 
 
 # TODO: add addditional functions/classes for task 3 if needed
+def door(command = 'close', verbose = False):
+    val = 1 if command == 'close' else 0
+    controls = {"trapdoor close/open": val}
+    img = sim_step(200, view=True, **controls)
+
+    return img
+
+def lift(command = 'up', verbose = False):
+    val = 1 if command == 'up' else -1
+    controls = {"lift": val}
+    img = sim_step(2000, view=True, **controls)
+
+    return img
+
+def jib_rotate(rotation, verbose = False, multiple = 1):
+    controls = {"jib rotate": rotation}
+    img = sim_step(200 * 78 * multiple, view=True, **controls)
+
+    return img
+
+def cam_rotate(rotation, verbose = False, multiple = 1):
+    controls = {"dash cam rotate": rotation}
+    img = sim_step(800 * multiple, view=True, **controls)
+
+    return img
+
 # /TODO
 
 
@@ -354,12 +377,26 @@ def task_3():
     #  - use the dash camera and ArUco markers to precisely locate the car
     #  - move the car to the ball using teleport_by function
 
-    time.sleep(200)
+    time.sleep(2)
+
     x_dest = random.uniform(-0.2, 0.2)
     y_dest = 1 + random.uniform(-0.2, 0.2)
 
-    teleport_by(x_dest, y_dest)
-    time.sleep(2)
+    x_dest, y_dest = -1, 0
+
+    # door()
+    # jib_rotate(1)
+    # cam_rotate(1)
+    # teleport_by(x_dest, y_dest)
+    lift()
+    lift('down')
+
+
+    # img = step(0, 0)
+    # PIL_show(img)
+
+
+    time.sleep(200)
 
     # /TODO
 
