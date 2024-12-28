@@ -275,22 +275,23 @@ def task_2():
 
     # Go back until the blue wall in small enought in our FOV
     pixels_detected = 1e5
-    while pixels_detected > 1.2e4:
+    while pixels_detected > 1.45e4:
         img = step(-0.1, 0)
         pixels_detected = cut_strip_and_count(img, img.shape[1], 'blue')
         # print(pixels_detected)
 
     # Once again locate pillar twice
-    pillar_based_revolution(big_strip_width)
+    # pillar_based_revolution(big_strip_width)
 
     # Precisely face the pillar
-    pillar_based_revolution(small_strip_width * 2, small_step)
+    pillar_based_revolution(int(small_strip_width * 2.5), small_step * 1.3)
 
     # Turn to face the green wall
     step(0, 0.02, multiple = 5)
 
     # Drive back
-    step(-0.1, 0, multiple = 25)
+    step(-0.1, 0, multiple = 28)
+    step(0.1, 0, multiple = 3)
 
     # Face the exit
     step(0, -0.05, multiple = 11)
@@ -303,8 +304,6 @@ def task_2():
 
     time.sleep(100)
     # /TODO
-
-
 
 def ball_is_close() -> bool:
     """Checks if the ball is close to the car."""
