@@ -204,53 +204,6 @@ def task_1():
 
 
 # TODO: add addditional functions/classes for task 2 if needed
-### TRASH CODE
-
-    ### CODE FOR CHECKING IMAGE SIMILARITY
-    # prev = cut_strip_and_count(img, img.shape[1], 'green')
-    # for _ in range(12):
-    #     this = cut_strip_and_count(step(0, 0.5), img.shape[1], 'green')
-
-    #     print(np.abs(prev - this))
-    #     if np.abs(prev - this) < 5000:
-    #         prev = cut_strip_and_count(step(0, 5), img.shape[1], 'green')
-            
-    #     prev = this
-    #     time.sleep(0.5)
-    ###
-
-    ### CODE FOR TURNING LEFT WITH COLLISIONS
-    # prev = this = cut_strip_and_count(img, small_strip_width, 'green')
-    # swaps = 0
-    # while swaps < 2:
-    #     img = step(0, -0.05)
-    #     this = cut_strip_and_count(img, small_strip_width, 'green')
-    #     if np.abs(prev - this) > 200:
-    #         swaps = swaps + 1
-    #     prev = this 
-    # pixels_list = [this]
-    # pixels_detected = this 
-    # while pixels_detected > 100:
-    #     img = step(0, small_step)
-    #     pixels_detected = cut_strip_and_count(img, small_strip_width, 'green')
-    #     pixels_list.append(pixels_detected)
-    # first = len(pixels_list) - 1
-
-    # while pixels_detected < 100:
-    #     img = step(0, small_step)
-    #     pixels_detected = cut_strip_and_count(img, small_strip_width, 'green')
-    #     pixels_list.append(pixels_detected)
-    # last = len(pixels_list) - 1
-
-    # print(np.array(pixels_list))
-    # middle = (first + last) // 2
-    # print(middle)
-
-    # turn_back = len(pixels_list) - middle - 1
-    ###
-
-
-###
 
 def low_high_list(arr, threshold = 0):
     arr = np.array(arr)
