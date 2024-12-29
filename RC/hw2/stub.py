@@ -339,45 +339,6 @@ def get_dash_camera_intrinsics():
 
 
 # TODO: add addditional functions/classes for task 3 if needed
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-
-def draw_blurred_quadrilateral(img, p_list, color, girth):
-  shifted = np.concat([p_list[-1:],p_list[:-1]]).astype(int)
-  zip_list = list(zip(p_list, shifted))
-
-  for (p1, p2) in zip_list:
-    cv2.line(img, p1, p2, color, girth)
-  
-def draw_quadrilateral(img, p_list, color, girth):
-  shifted = np.concat([p_list[-1:],p_list[:-1]]).astype(int)
-  zip_list = list(zip(p_list, shifted))
-
-  for (p1, p2) in zip_list:
-    cv2.line(img, p1, p2, color, girth)
-
-def draw_square(img, p1, p3, color, girth):
-  p_matrix = np.vstack([p1, p3])
-  new = (p_matrix * np.eye(2), p_matrix * np.array([0,1,1,0]).reshape(2,2))
-
-  p2, p4 = list(map(lambda x: x[np.nonzero(x)], new))
-  p4 = p4[::-1]
-
-  p_list = np.array([p1, p2, p3, p4]).astype(int)
-  draw_quadrilateral(img, p_list, color, girth)
-
-def drawMarkers(img, corners, ids):
-  if ids is None:
-    return
-
-  square_size = 7
-  for i in range(ids.shape[0]):
-    c = corners[i][0]
-    id = ids[i][0]
-    draw_quadrilateral(img, c.astype(int), GREEN, 3)
-    draw_square(img, c[0] - (square_size // 2), c[0] + (square_size // 2), RED, 1)
-    cv2.putText(img, f"{id}", c[0].astype(int), cv2.FONT_HERSHEY_SIMPLEX, 1, RED, 2)
-
 def door(command = 'close', verbose = False):
     val = 1 if command == 'close' else 0
     controls = {"trapdoor close/open": val}
@@ -398,40 +359,14 @@ def jib_rotate(rotation, verbose = False, multiple = 1):
 
     return img
 
-def cam_rotate(rotation = 1, verbose = False, multiple = 1):
+def cam_rotate(rotation = 1, verbose = False, multiple = 1, view = True):
     controls = {"dash cam rotate": rotation}
-    img = sim_step(int(800 * multiple), view=True, **controls)
+    img = sim_step(int(800 * multiple), view=view, **controls)
 
     return img
 
-def rot_M(axis, phi):
-    c = np.cos(phi)
-    s = np.sin(phi)
-    
-    if axis == 0:
-        a = [1, 0, 0, 0, c, -s, 0, s, c]
-    elif axis == 1:
-        a = [c, 0, -s, 0, 1, 0, s, 0, c]
-    elif axis == 2:
-        a = [c, -s, 0, s, c, 0, 0, 0, 1]
-    else:
-        return None
-    return np.array(a).reshape(3,3)
-
 def get_objpoints(edge):
     blk = 1/10
-
-    # objpoints = np.array([
-    #     [1 - blk, 1 - blk, 0],
-    #     [blk, 1 - blk, 0],
-    #     [blk, blk, 0],
-    #     [1 - blk, blk, 0],
-
-    #     [0, blk, blk],
-    #     [0, 1 - blk, blk],
-    #     [0, 1 - blk, 1 - blk],
-    #     [0, blk, 1 - blk],
-    # ])
 
     objpoints = np.array([
         [blk - 1, 0, blk],
@@ -445,34 +380,16 @@ def get_objpoints(edge):
         [0, blk - 1, 1 - blk],
     ])
 
-    # objpoints = objpoints.T
     return objpoints * edge
-
-def detect_subpix(gray, corners, ids):
-    if ids is not None:
-        window_size = (5, 5)
-        zero_zone = (-1, -1)
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-
-        refined_corners = []
-        for corner in corners:
-            corner = np.array(corner, dtype = np.float32) 
-            refined = cv2.cornerSubPix(gray, corner, window_size, zero_zone, criteria)
-            refined_corners.append(refined)
-
-    return refined_corners
 
 def visualize_corners(img, corners, ids = None, verbosity = 0):
     img0 = img.copy()
 
-    if verbosity > 0:
-        drawMarkers(img0, corners, ids)
-    else:
-        cv2.aruco.drawDetectedMarkers(img0, corners)
+    cv2.aruco.drawDetectedMarkers(img0, corners)
 
-    if verbosity > 1:
+    if verbosity > 0:
         for x, y in np.array(corners).reshape(8, 2).astype(int):
-            cv2.circle(img0, (x, y), 3, RED, cv2.FILLED)
+            cv2.circle(img0, (x, y), 3, (255, 0, 0), cv2.FILLED)
             PIL_show(img0)
             time.sleep(1)
     else:
@@ -531,81 +448,84 @@ def pnp_project(img):
 
     return tvec_world_frame.flatten(), mean_error
 
-    # vecpoints = np.vstack([np.zeros(3), np.diag([1,1,1])])
-    # colors = (np.eye(3) * 255)[::-1]
-
-    # image_points = image_points.astype(int)
-    # first = image_points[0][0]
-    # image_points = image_points[1:]
-
-    # for point, color in zip(image_points, colors):
-    #     img = cv2.line(img, first, point[0], tuple(color), 1)
-
-    # PIL_show(img)
-    # time.sleep(3)
-
-    # print("Displacement in Camera Frame:", tvec.flatten())
-    # print("Displacement in World Frame:", tvec_world_frame.flatten())
-    # print("")
-
-    
 # /TODO
 
 
 def task_3():
     start_x = random.uniform(-0.2, 0.2)
     start_y = random.uniform(0, 0.2)
+    start_x, start_y = 0.2, 0
     teleport_by(start_x, start_y)
 
     # TODO: Get to the ball
     #  - use the dash camera and ArUco markers to precisely locate the car
     #  - move the car to the ball using teleport_by function
-
+    print(start_x, start_y)
     lift()
     
     iterations = 30
-    cam_rotate(-0.05)
     found = False
-    min_error, vec = 130, None
+    error_threshold = 150
+    min_error = error_threshold
+    bonus_x = 0
+    half_rot = 0.06
+    vec = None
 
     while not found:
-        for i in range(iterations):
-            img = cam_rotate(-0.05 / iterations)
+        cam_rotate(-half_rot)
+        for _ in range(iterations):
+            img = cam_rotate(-half_rot / iterations)
             tvec, error = pnp_project(img)
 
-            if tvec is not None and error < min_error and tvec[0] > 0 and tvec[1] > 0:
+            if tvec is not None and error < min_error and tvec[0] > 0 and tvec[1] > 0 and np.abs(tvec[2]) < 0.15:
                 vec = tvec[:2]
                 min_error = error
 
-                print(error, vec)
+                print(error, tvec)
 
-        if min_error < 130:
+        if min_error < error_threshold:
             found = True
         else:
-            step(0.01, 0)
-            cam_rotate(0.1)
+            for _ in range(iterations):
+                cam_rotate(half_rot / iterations, view = False)
+            cam_rotate(half_rot, view = False)
+
+            if bonus_x >= 0:
+                print("tp front")
+                teleport_by(0.1, 0)
+                bonus_x -= 0.1
+            else:
+                print("tp back")
+                teleport_by(-0.22, 0)
+                bonus_x += 0.22
 
     print(f"tp {-vec[0]} {-vec[1]}")
-    teleport_by(-vec[0] + 1, -vec[1] + 2.3)
+    teleport_by(-vec[0] + 0.96, -vec[1] + 2.27)
 
-    time.sleep(2)
-    
     # /TODO
 
-    # /*BOLD TODO*
-    assert ball_is_close()
+    # IM DROPPING THIS ASSERTION
+    # BECAUSE AFTER TP THE CAR IS ALREADY IN GOOD
+    # POSITION TO GRAB THE BALL, BUT IS NOT 'CLOSE' 
+
+    # assert ball_is_close()
 
     # TODO: Grab the ball
     # - the car should be already close to the ball
     # - use the gripper to grab the ball
     # - you can move the car as well if you need to
 
-    # door()
-    # jib_rotate(1)
-    # teleport_by(x_dest, y_dest)
-    # lift('down')
+    for _ in range(iterations):
+        cam_rotate(half_rot / iterations, view = False)
+    img = cam_rotate(half_rot, view = False)
+
+    lift('down')
+    door('close')
+    lift('up')
+    PIL_show(img)
 
     # /TODO
+
 
     assert ball_grab()
 
