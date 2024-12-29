@@ -14,7 +14,7 @@ import cv2
 from numpy.typing import NDArray
 
 
-TASK_ID = 3
+TASK_ID = 1
 
 world_xml_path = f"car_{TASK_ID}.xml"
 model = mujoco.MjModel.from_xml_path(world_xml_path)
@@ -73,6 +73,9 @@ def sim_step(
 from PIL import Image
 import time
 
+DEBUG = True
+SLEEP = False 
+
 def PIL_show(img, colorspace = 'RGB'):
     if (colorspace != 'RGB'):
         color_trans = getattr(cv2, f'COLOR_{colorspace}2RGB')
@@ -116,11 +119,6 @@ def find_colored_pixels(img, color = 'red'):
         mask2 = cv2.inRange(hsv_img, lower2, upper2)
         mask = cv2.bitwise_or(mask, mask2)
 
-    # if color == 'grey':
-        # PIL_show(img)
-        # PIL_show(mask)
-        # time.sleep(1)
-
     return mask
 
 def cut_strip_and_count(img, strip_width, color = 'red', cut_bottom = None, show = False):
@@ -135,7 +133,7 @@ def cut_strip_and_count(img, strip_width, color = 'red', cut_bottom = None, show
 
     return pixels_detected
     
-def step(forward, turn, verbose = False, show = False, multiple = 1):
+def step(forward, turn, verbose = DEBUG, show = False, multiple = 1):
     controls = {"forward": forward, "turn": turn}
     img = sim_step(200 * multiple, view=True, **controls)
 
@@ -164,8 +162,8 @@ def task_1():
     big_strip_width = 80
     small_strip_width = 10
     scan_length = 20
-    small_treshold = 3e3
-    big_threshold = 9e3
+    small_treshold = 5e3
+    big_threshold = 8.2e3
 
     # detecting general direction of the ball
     while pixels_detected < 5:
@@ -192,11 +190,12 @@ def task_1():
 
     # making final adjustments
     while pixels_detected < big_threshold:
-        img = step(0.03, 0)
+        img = step(0.018, 0)
         pixels_detected = cut_strip_and_count(img, img.shape[1], 'red')
+        # print(pixels_detected)
 
-    time.sleep(1000)
-    return
+    if SLEEP:
+        time.sleep(100)
     # /TODO
 
 
@@ -234,7 +233,7 @@ def pillar_based_revolution(strip_width, step_size = 0.15):
 
         if pixels_detected > 30:
             revolution_done = low_high_list(pd_list, 5)[-3:] == [True, False, True]
-            print(low_high_list(pd_list, 0)[-3:])
+            # print(low_high_list(pd_list, 0)[-3:])
 
 # /TODO
 
@@ -294,12 +293,13 @@ def task_2():
     step(0, -0.05, multiple = 11)
 
     # Exit the labirynth
-    step(0.2, 0, multiple = 25)
+    step(0.2, 0, multiple = 30)
 
     # Find the ball
     task_1()
 
-    time.sleep(100)
+    if SLEEP:
+        time.sleep(100)
     # /TODO
 
 def ball_is_close() -> bool:
@@ -454,13 +454,18 @@ def pnp_project(img):
 def task_3():
     start_x = random.uniform(-0.2, 0.2)
     start_y = random.uniform(0, 0.2)
-    start_x, start_y = 0.2, 0
+    # start_x, start_y = 0.2, 0
     teleport_by(start_x, start_y)
 
     # TODO: Get to the ball
     #  - use the dash camera and ArUco markers to precisely locate the car
     #  - move the car to the ball using teleport_by function
-    print(start_x, start_y)
+    from tqdm import tqdm
+
+    # for debugging purpouses
+    # print(start_x, start_y)
+
+    # lift the gripper
     lift()
     
     iterations = 30
@@ -471,17 +476,18 @@ def task_3():
     half_rot = 0.06
     vec = None
 
+    # scan the enviroment until we get a good measurement where we are
     while not found:
         cam_rotate(-half_rot)
-        for _ in range(iterations):
+
+        for _ in tqdm(range(iterations), desc="Looking for cube"):
             img = cam_rotate(-half_rot / iterations)
             tvec, error = pnp_project(img)
 
             if tvec is not None and error < min_error and tvec[0] > 0 and tvec[1] > 0 and np.abs(tvec[2]) < 0.15:
                 vec = tvec[:2]
                 min_error = error
-
-                print(error, tvec)
+                # print(error, tvec)
 
         if min_error < error_threshold:
             found = True
@@ -490,6 +496,7 @@ def task_3():
                 cam_rotate(half_rot / iterations, view = False)
             cam_rotate(half_rot, view = False)
 
+            print("Two sides not found:", end = ' ')
             if bonus_x >= 0:
                 print("tp front")
                 teleport_by(0.1, 0)
@@ -499,7 +506,7 @@ def task_3():
                 teleport_by(-0.22, 0)
                 bonus_x += 0.22
 
-    print(f"tp {-vec[0]} {-vec[1]}")
+    # print(f"tp {-vec[0]} {-vec[1]}")
     teleport_by(-vec[0] + 0.96, -vec[1] + 2.27)
 
     # /TODO
@@ -515,15 +522,19 @@ def task_3():
     # - use the gripper to grab the ball
     # - you can move the car as well if you need to
 
-    for _ in range(iterations):
-        cam_rotate(half_rot / iterations, view = False)
-    img = cam_rotate(half_rot, view = False)
+    # turn camera back for a photo (optional)
+    # for _ in range(iterations):
+    #     cam_rotate(half_rot / iterations, view = False)
+    # img = cam_rotate(half_rot, view = False)
+    # PIL_show(img)
 
+    time.sleep(0.3)
     lift('down')
     door('close')
     lift('up')
-    PIL_show(img)
 
+    if SLEEP:
+        time.sleep(100)
     # /TODO
 
 
