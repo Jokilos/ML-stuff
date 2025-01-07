@@ -14,7 +14,7 @@ import cv2
 from numpy.typing import NDArray
 
 
-TASK_ID = 1
+TASK_ID = 2
 
 world_xml_path = f"car_{TASK_ID}.xml"
 model = mujoco.MjModel.from_xml_path(world_xml_path)
@@ -73,8 +73,8 @@ def sim_step(
 from PIL import Image
 import time
 
-DEBUG = True
-SLEEP = False 
+DEBUG = False 
+SLEEP = True 
 
 def PIL_show(img, colorspace = 'RGB'):
     if (colorspace != 'RGB'):
@@ -240,11 +240,17 @@ def pillar_based_revolution(strip_width, step_size = 0.15):
 def task_2():
     speed = random.uniform(-0.3, 0.3)
     turn = random.uniform(-0.2, 0.2)
+    time.sleep(0.5)
+    speed, turn = -0.23020031618517778, 0.12508321126850375 
+    speed, turn = -0.24, 0.12
+    time.sleep(0.5)
     controls = {"forward": speed, "turn": turn}
     img = sim_step(1000, view=True, **controls)
 
     # TODO: Change the lines below.
     # For car control, you can use only sim_step function
+
+    print(speed, turn)
 
     pixels_detected = 0
     small_step = 0.05
