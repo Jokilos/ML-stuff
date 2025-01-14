@@ -12,8 +12,8 @@ statsmodels
 matplotlib
 scikit-learn
 torch
-# torchvision
-# timm
+torchvision
+timm
 clearml
 memory-profiler
 tdqm
