@@ -54,10 +54,8 @@ createBST([X | L], T) :-
 % -------------------------
 
 %  1. Flaga polska
-%        (i) akumulator - lista różnicowa
-%        (ii) parametr wyjściowy  - lista różnicowa
 
-?- op(500, xfx, --).
+% vesion with append
 
 flag([], []).
 
@@ -75,7 +73,19 @@ flag([X | L], A, [X | F], P) :-
     X \= P,
     flag(L, A, F, P).
 
-%flag([b,c,b,c,c], [c], [b,b])
+% version for b, c only
+
+flagbc(L, F) :- flagbc(L, [], F).
+
+flagbc([], A, A).
+
+flagbc([b | L], A, [b | F]) :-
+    flagbc(L, A, F).
+
+flagbc([c | L], A, F) :-
+    flagbc(L, [c | A], F).
+
+% version for any two letters
 
 flag1([], []).
 flag1([X | L], F) :-
@@ -83,16 +93,30 @@ flag1([X | L], F) :-
 
 flag1([], A, A, _).
 
-flag1([X | L], A, [X | F], X) :- flag1(L, A, F, X).
+flag1([X | L], A, [X | F], X) :- 
+    flag1(L, A, F, X).
 
 flag1([Y | L], A, F, X) :- 
     Y \= X,
     flag1(L, [Y | A], F, X).
 
-% flag(L, F) :- flag(L, X--X, F).
+% (i) akumulator - lista różnicowa
+
+?- op(500, xfx, --).
+
+flaglr(L, F) :- flaglr(L, X--X, F).
+
+flaglr([], X--X, []).
+
+flaglr([b | L], R--E, F) :- 
+
+
 
 % flag([E | L], X--X, F) :-
 %     flag(L, [E | X]--X, F).
+
+
+%        (ii) parametr wyjściowy  - lista różnicowa
 
 
 
