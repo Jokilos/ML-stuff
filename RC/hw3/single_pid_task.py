@@ -30,6 +30,6 @@ if __name__ == '__main__':
         )
 
     # Increase the number of iterations for longer simulation
-    for i in range(4000):
+    for i in range(2000):
         desired_thrust = pid_altitude.output_signal(desired_altitude, drone_simulator.measured_altitudes)
         drone_simulator.sim_step(desired_thrust)
