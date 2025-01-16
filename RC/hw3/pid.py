@@ -24,8 +24,6 @@ class PID:
         
         integ = self.integral * self.gain_int
 
-        print(prop, der, integ)
-
         forward_torque = prop + der + integ
 
         return forward_torque

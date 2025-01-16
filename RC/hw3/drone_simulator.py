@@ -34,7 +34,7 @@ class DroneSimulator:
             step_start = time.time()
             mujoco.mj_step(self.model, self.data)
             self.update_altitude_tracker()
-            # self.report_altitudes()
+            self.report_altitudes()
             self.altitude_sensor()
             if view:
                 self.viewer.sync()
