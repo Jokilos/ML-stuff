@@ -63,7 +63,6 @@ if __name__ == '__main__':
     # Increase the number of iterations for a longer simulation
 
     thrust = 0
-    prev_alt_measurement = -1
     alts = []
 
     for i in range(4000):
@@ -71,11 +70,10 @@ if __name__ == '__main__':
 
         drone_simulator.acceleration_sensor()
 
-        if drone_simulator.measured_altitudes[0] != prev_alt_measurement:
-            wanted_acc = outerPID.output_signal(
-                desired_altitude,
-                drone_simulator.measured_altitudes
-            )
+        wanted_acc = outerPID.output_signal(
+            desired_altitude,
+            drone_simulator.measured_altitudes
+        )
 
         thrust_addition = innerPID.output_signal(
             wanted_acc,
