@@ -1,6 +1,7 @@
 # Mine
 data/
 datasets/
+Datasets/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
