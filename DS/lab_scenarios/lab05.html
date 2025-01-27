@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski" />
+  <title>Distributed Systems Lab 05</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+body
+{
+font-family: Helvetica, sans;
+background-color: #f0f0f0;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+}
+section.content {
+width: 19cm;
+font-size: 12pt;
+text-align: justify;
+margin-left: auto;
+margin-right: auto;
+margin-top: 20pt;
+background-color: white;
+padding: 20pt;
+}
+h1
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: center;
+}
+h2
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+border-bottom: 1px solid #808080;
+}
+h3
+{
+font-size: x-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h1 + h3 {
+text-align: center;
+}
+h4
+{
+font-size: large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h5
+{
+font-size: medium;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h6
+{
+font-size: medium;
+text-decoration: none;
+font-weight: normal;
+text-align: left;
+}
+table
+{
+border-width: 1px;
+border-spacing: 0px;
+border-style: solid;
+border-color: #808080;
+border-collapse: collapse;
+font-family: Times, serif;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+background-color: white;
+}
+td
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+background-color: white;
+}
+th
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+font-weight: bold;
+background-color: #f0f0f0;
+}
+a:link {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:visited {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:hover {
+text-decoration: underline;
+font-weight: normal;
+}
+pre.sourceCode {
+font-size: 90%;
+}
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="distributed-systems-lab-05" class="content">
+<h1>Distributed Systems Lab 05</h1>
+<h3 id="secure-networking">Secure networking</h3>
+<p>During the previous lab, we presented asynchronous programming in Rust, which should facilitate efficient implementations of single-machine distributed systems. This lab presents network communication in Rust and discusses how to implement a secure communication channel, which is the key component of many multi-machine distributed systems. We will use files contained in <a href="./dslab05.tgz">this package</a>, which you should download and extract locally.</p>
+<h2 id="learning-section">Learning section</h2>
+<h3 id="links">Links</h3>
+<p><strong>Link</strong> is a name for an abstraction of communication between two distinct nodes of a distributed system. When software runs on more than one machine, the presence of a medium necessary to deliver messages cannot be ignored.</p>
+<p>We will look at various types of links between nodes and analyze how they approximate the theory from the lectures.</p>
+<h4 id="best-effort-links">Best-effort links</h4>
+<p>The simplest abstraction, and arguably the closest one to the reality, is a <strong>best-effort link</strong>: when a message is inserted at one end, it either arrives at the other end or gets lost. Such a link can be implemented, for instance, by sending UDP or raw IP packets over the network. You can think of them as of <em>faulty links</em>. Note that there are no guarantees about the order in which the packets are delivered, and it might also happen that the same packet is delivered multiple times.</p>
+<p>It is rather uncommon to send IP packets directly and thus, we will not discuss this approach.</p>
+<h5 id="udp-in-rust">UDP in Rust</h5>
+<p><strong>UDP</strong> is supported by the Rust Standard Library. The main type is <code>std::net::UdpSocket</code>. It allows you to bind to a certain port and then send and receive messages, as with any other UDP implementation.</p>
+<p>We provide some examples in <code>examples/udp-communication/</code>.</p>
+<p>The interface from the standard library is synchronous. In asynchronous code, you should use <code>tokio::net</code>, which largely mimics the interface of <code>std::net</code>.</p>
+<h4 id="reliable-links">Reliable links</h4>
+<p>Often, data delivery guarantees provided by best-effort links are too weak. A <strong>reliable link</strong> works as an invisible pipe, allowing inserting bytes at one of its ends and then reading them at the other end. The bytes are delivered in the order in which they are sent and without any duplicates.</p>
+<p>In real distributed systems, reliable links can be approximated using TCP connections. However, it is impossible to implement a truly <em>reliable</em> (or <em>perfect</em>) link due to the possibility of technical issues. For example, no protocol can circumvent a cut Ethernet cable.</p>
+<h5 id="tcp-in-rust">TCP in Rust</h5>
+<p>Rust supports <strong>TCP</strong> via two structures: <code>std::net::TcpListener</code> and <code>std::net::TcpStream</code>. The first one allows for binding to a port and has a convenient iterator over incoming connections. An incoming connection is nothing more than a <code>TcpStream</code> that allows for transmitting data by reading and writing bytes to it. A <code>TcpStream</code> can also be created by connecting to a remote host. This is similar to what other programming languages provide. Additionally, in Rust the connection is automatically closed when the <code>TcpStream</code> object is dropped.</p>
+<p>Sending and receiving data over a TCP stream in Rust is implemented using the <code>Read</code> and <code>Write</code> traits from <code>std::io</code>. Functions <code>read</code> and <code>write</code> are the most basic ones and roughly correspond to <code>recv</code> and <code>send</code> syscalls. They are used by other functions, such as <code>read_exact</code>. Keep in mind that <code>read_to_end</code> will wait forever if the other side does not close the stream by calling <code>TcpStream::shutdown</code> or dropping the <code>TcpStream</code> object.</p>
+<p>Examples are in <code>examples/tcp-communication/</code>.</p>
+<p>Again, in asynchronous code, you should use <code>tokio::net</code> instead of the aforementioned primitives.</p>
+<h3 id="security-of-a-system">Security of a system</h3>
+<p>Security is a feature that can often be overlooked, especially in university assignments. However, in many systems, security is a fundamental requirement, although it is tricky to satisfy. Just one mistake made when designing or implementing the system can render the whole effort pointless and allow an attacker to get access to some confidential information.</p>
+<p>While this course is not about security, this lab will be dedicated to this topic. Any problem complex enough to require an implementation as a distributed system is likely to have very strict requirements regarding security. This might be because:</p>
+<ul>
+<li>the system is geo-distributed (or decentralized) and exchanges messages over the Internet,</li>
+<li>the system processes sensitive data about numerous individuals,</li>
+<li>the system can cause physical damage.</li>
+</ul>
+<p>The remaining part of this lab will be focused on securing message exchanges between components of a system.</p>
+<h4 id="secure-links">Secure links</h4>
+<p>The basic link abstraction does not provide any kind of encryption. However, it is possible to build a <strong>secure link</strong> on top of an insecure one. One solution would be to use <strong>public key cryptography</strong>—for instance RSA—to encrypt messages with the public key of the recipient. However, this approach is too slow: RSA encryption is computationally expensive and allows for encryption of only messages shorter than the key. A common way of dealing with those issues is to use RSA to only securely exchange a key for some <strong>symmetric key cryptography</strong> scheme (e.g., AES) and then to encrypt the following communication with this symmetric key. This approach results in a lower overhead and simplifies encryption of large portions of data.</p>
+<h5 id="transport-layer-security">Transport Layer Security</h5>
+<p><strong>Transport Layer Security (TLS)</strong> is a standard defined in <a href="https://www.rfc-editor.org/rfc/rfc8446">RFC 8446</a> (<em>Request for Comments</em>) designed to provide secure links over insecure ones. Its latest version is 1.3 (as of October 2023), and this is what we will use during this lab, via the <code>rustls</code> crate. TLS is a client-server communication scheme. To proceed, the client must verify that it really talks with the designated server. That is, the public key of the server must be trusted by the client (you might have already seen some issues with this in the form of a web browser’s warning about an <em>insecure connection</em>). This raises the issue of certificates.</p>
+<h5 id="certificates">Certificates</h5>
+<p>The <strong>certificate</strong> is a <em>signed public key</em> from some public key cryptography scheme (like RSA). You can see one in the <code>examples/rustls/certs.rs</code> file. Certificates can be signed with other certificates, creating a <strong>chain of trust</strong>. Clients (e.g., web browsers) trust certificates, which have a known certificate in this chain. In practice, most clients have a built-in list of trusted <em>root</em> certificates: the ones that are not signed by other certificates, but are signed by themselves. Clients verify whether a chain of a certificate in question is valid and whether it ends with a trusted root certificate. Moreover, TLS allows optional certification of clients, making the verification process symmetric.</p>
+<h5 id="rustls">Rustls</h5>
+<p>In directory <code>examples/rustls/</code>, we present an example how to create a secure TLS connection. The function <code>StreamOwned::new</code> is flexible enough to abstract away TCP, as it requires the underlying link to implement only the <code>Read</code> and <code>Write</code> traits.</p>
+<p>Now we will discuss some lower level cryptography issues.</p>
+<h4 id="message-authentication-code-hmac">Message Authentication Code, HMAC</h4>
+<p><strong>Message Authentication Code (MAC)</strong> is used to ensure that a message comes from an authorized sender. It takes the form of a tag, a few additional bytes attached to the message. To implement a MAC, a common shared key is needed, and an algorithm that transforms an arbitrary stream of bytes into a fixed size signature using the provided key. Then, the recipient can use the shared key to verify whether the message was actually sent by an authorized sender. MACs also provide an ability to verify the integrity of the received message.</p>
+<p>The advantage of MACs over simple integrity checks, such as CRC, is that without knowing the secret key it is infeasible to tamper with the message and obtain a MAC that will then pass the verification. This property, of course, depends on the actual algorithm. There are at least a few of them (you can easily find them on the Internet), but we will use <strong>HMAC</strong> during this course.</p>
+<p>An example of HMAC calculation and verification using the <code>hmac</code> crate is provided in <code>examples/hmac.rs</code>.</p>
+<h4 id="aes">AES</h4>
+<p>Historically, symmetric key cryptography was developed first. The same secret sequence of bytes, the <em>key</em>, is used to both encrypt and decrypt a message. <strong>AES (Advanced Encryption Standard)</strong> is a scheme of such symmetric encryption. It is very popular and constitutes a good default option. The keys can have sizes of 128, 192 and 256 bits–the longer the key, the harder it is to break the encryption. AES takes as an input 16 bytes, and outputs 16 bytes too.</p>
+<h4 id="rsa">RSA</h4>
+<p><strong>RSA (Rivest–Shamir–Adleman)</strong> is an algorithm widely used in public key cryptography. It is based on raising a number to large powers, modulo a product of two large primes. The underlying idea is the Euler’s theorem about relatively prime numbers. Part of the public key is an exponent <em>e</em>. A plaintext is raised to the power of <em>e</em>, modulo some number <em>n</em>. The private key is mostly another exponent <em>d</em>. The ciphertext is then raised to the power of <em>d</em>, arriving at the original message (modulo <em>n</em>). The underlying math is not that complicated, so if you are interested, you should be able to learn about the details yourself. What is important from our perspective, is that being given a public key, computing a matching private key is considered to be a hard problem. This makes the scheme useful for encryption, and it is safe to publish freely public keys.</p>
+<p>What is more, the two steps of RSA can be also executed in the opposite order. Encrypting a message (more precisely: a hash value of it) with a private key <em>signs</em> the message. Then decrypting the <em>signature</em> with the public key verifies whether it really was generated with the matching private key.</p>
+<p>An example of RSA encryption and decryption using the <code>rsa</code> crate is provided in <code>examples/rsa.rs</code>.</p>
+<h4 id="encrypting-blocks-of-data-cbc">Encrypting blocks of data, CBC</h4>
+<p>Cryptography is full of traps. If you need to encrypt a large portion of bytes, but you are able to encrypt only a short chunk of bytes, it might be tempting to just divide the input and encrypt each part separately. However, this strategy is flawed, as can be easily seen when encrypting, for example, an image: after the transformation, the image will be distorted, but its structure will be still visible! Hence, encrypting large portions of data requires employing special algorithms (<em>modes of operation</em>), e.g., <strong>CBC</strong>, which xor-s a ciphertext of the previous block with the plaintext of the next block.</p>
+<p>An example demonstrating AES-CBC encryption and decryption using the <code>aes</code> and <code>block-modes</code> crates is provided in <code>examples/aes_cbc.rs</code>.</p>
+<h2 id="small-assignment">Small Assignment</h2>
+<p>Your task is to implement a <em>secure link</em> abstraction in Rust. You shall provide two types: <code>SecureClient</code> and <code>SecureServer</code>. <code>SecureClient</code> accepts plaintext data and sends it as encrypted messages over a link to <code>SecureServer</code>. <code>SecureServer</code> receives the messages (the receiving operation shall block when there are currently no incoming messages) and decrypts them.</p>
+<p>Before being encrypted, the message shall be formatted as follows:</p>
+<ul>
+<li>4 bytes: length (encoded in network byte order) of the message’s content (i.e., the size of data passed to the <code>send_msg()</code> method of <code>SecureClient</code>),</li>
+<li>content of the message (i.e., the data passed to the <code>send_msg()</code> method),</li>
+<li>32 bytes: a HMAC tag (SHA256 based) of the message’s content (i.e., of the data passed to the <code>send_msg()</code> method).</li>
+</ul>
+<p>The messages shall be encrypted with TLS and sent over the link provided as an argument to the <code>new()</code> method of <code>SecureClient</code>. <code>SecureServer</code> decrypts messages and validates their HMAC tags. If the tag is invalid, an error is returned. Otherwise, the server returns the content of the message (i.e., without the length and the HMAC tag). Certificates from the <code>certs</code> module will be used for testing, just as they are used in file <code>main.rs</code>.</p>
+<p>You shall use the same hmac key, the one provided in the <code>new()</code> methods, for all exchanged messages. Messages sent over the provided link are guaranteed to arrive in the same order on the other side. Use the <code>hmac</code> crate for HMAC and <code>rustls</code> for TLS encryption. You can assume that the link for raw data never fails. Your solution may assume the input to functions not returning a <code>Result</code> is correct, i.e., the code may panic otherwise.</p>
+<p>Note: a standard TLS stream already contains MACs internally to guarantee integrity. Therefore, you may consider the additional layer in this task as an alternative client authorization.</p>
+<h2 id="additional-homework">Additional Homework</h2>
+<p>Play with Wireshark and <code>tcpdump</code>. You can read about them below.</p>
+<p>For those interested, think how to verify that data is encrypted. How can one gain (some) confidence that a chunk of bytes is indeed encrypted?</p>
+<p>For those really interested, read about Diffie–Hellman key exchange, an alternative way of building a secure channel.</p>
+<h3 id="wireshark">Wireshark</h3>
+<p>If you work with low level networking code, you may need to observe exactly what messages are exchanged. Operating systems provide various support for monitoring network interfaces for debugging purposes. <a href="https://www.wireshark.org/">Wireshark</a>, a well known GUI tool, can be used to this end. However, because we want our examples to be maximally portable, they employ <code>tshark</code>, the terminal version of Wireshark. This lab is a good occasion to play with it. For instance, verify that that packets send by your implementation are indeed encrypted. To download Wireshark, visit the <a href="https://www.wireshark.org/#download">Wireshark website</a>. Install also <code>tshark</code>, if it is not already bundled with Wireshark.</p>
+<p>We do not cover Wireshark GUI here, but there are plenty of resources about it on the Internet if you are interested.</p>
+<h4 id="privileges-for-observing-packets">Privileges for observing packets</h4>
+<p>Observing raw packets requires certain privileges in the operating system. If you are using your own computer, you can simply run <code>tshark</code> as root (administrator), or grant required privileges to a certain user. However, if you are using the students server or lab computers, you are not able to run processes as root there. In that case, you can easily install a virtual machine—preferably with Linux—and run <code>tshark</code> in it.</p>
+<p>To observe packets on a network interface, running <code>tshark</code> as root, you can execute:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource bash numberLines"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">sudo</span> tshark -i NETWORK_INTERFACE</span></code></pre></div>
+<p>Proper <code>NETWORK_INTERFACE</code> can be found via <code>ifconfig</code> or <code>ip a</code>. You can try first setting the interface which ‘connects’ you to the Internet and then visiting some websites in a web browser—<code>tshark</code> will log the network traffic you generate. In further examples, we will use <code>lo</code>: the loopback interface. It is the network interface used to send packets to the same host.</p>
+<p>To observe TCP packets arriving at port <code>PORT</code>, you can execute:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource bash numberLines"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a><span class="ex">tshark</span> -i lo -f <span class="st">&quot;dst port PORT&quot;</span> -n -T fields -e frame.time -e ip.src -e ip.dst -e tcp</span></code></pre></div>
+<p>To observer raw packets, for instance to check whether the data looks like it is being encrypted:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource bash numberLines"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">tshark</span> -x -i lo -f <span class="st">&quot;dst port PORT&quot;</span></span></code></pre></div>
+<p>Wireshark has a lot of features: it can dump packets to a file and it can open the file later for an offline analysis, it supports very flexible packet filtering, and it can parse plenty of standard protocols. We do not cover all these features here, as during this lab Wireshark will be primarily useful for verification whether your solution indeed encrypts data.</p>
+<h4 id="tcpdump">Tcpdump</h4>
+<p>On Linux devices (and macOS, but Linux is far more common in production environments) the standard tool for viewing various network packets is <code>tcpdump</code>. Its basic usage is similar to <code>tshark</code>’s.</p>
+<hr />
+<p>Authors: F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski, M. Matraszek.</p>
+</section>
+</body>
+</html>

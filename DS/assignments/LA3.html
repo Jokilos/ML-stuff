@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski" />
+  <title>Distributed Systems Large Assignment 3</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+body
+{
+font-family: Helvetica, sans;
+background-color: #f0f0f0;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+}
+section.content {
+width: 19cm;
+font-size: 12pt;
+text-align: justify;
+margin-left: auto;
+margin-right: auto;
+margin-top: 20pt;
+background-color: white;
+padding: 20pt;
+}
+h1
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: center;
+}
+h2
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+border-bottom: 1px solid #808080;
+}
+h3
+{
+font-size: x-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h1 + h3 {
+text-align: center;
+}
+h4
+{
+font-size: large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h5
+{
+font-size: medium;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h6
+{
+font-size: medium;
+text-decoration: none;
+font-weight: normal;
+text-align: left;
+}
+table
+{
+border-width: 1px;
+border-spacing: 0px;
+border-style: solid;
+border-color: #808080;
+border-collapse: collapse;
+font-family: Times, serif;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+background-color: white;
+}
+td
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+background-color: white;
+}
+th
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+font-weight: bold;
+background-color: #f0f0f0;
+}
+a:link {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:visited {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:hover {
+text-decoration: underline;
+font-weight: normal;
+}
+pre.sourceCode {
+font-size: 90%;
+}
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="distributed-systems-large-assignment-3" class="content">
+<h1>Distributed Systems Large Assignment 3</h1>
+<h3 id="raft">Raft</h3>
+<p>Your task is to implement the Raft consensus algorithm. The solution shall take the form of a Rust library. A template for the solution, public tests, and additional files are provided in <a href="./dsassignment3.tgz">this package</a>.</p>
+<h3 id="assignment-overview">Assignment overview</h3>
+<p>The solution shall implement the Raft consensus algorithm, following its description in Diego Ongaro’s dissertation <a href="#bib1">[1]</a>. More specifically, the scope of the assignment is divided into four parts:</p>
+<ol type="1">
+<li>basic Raft (10 points),</li>
+<li>snapshots (5 points),</li>
+<li>client sessions (4 points),</li>
+<li>cluster membership changes (6 points).</li>
+</ol>
+<p>The numbers in parentheses denote the maximal number of points for each part of the solution. An implementation of basic Raft (point 1) is mandatory to receive any points for the assignment. Implementations of snapshots (point 2), client sessions (point 3), and cluster membership changes (point 4) are voluntary: you can choose to implement any subset of them. However, if you do not implement some part, you <em>must</em> provide a mock interface as specified below; otherwise, you may lose more points than the respective part’s value.</p>
+<h4 id="basic-raft">Basic Raft</h4>
+<p>Basic Raft is the part described in Chapter 3 of <a href="#bib1">[1]</a>. Your implementation shall follow Figure 3.1 of <a href="#bib1">[1]</a> and the following remarks:</p>
+<ul>
+<li>Do not optimize the number of rejected <em>AppendEntries</em> (Chapter 3.5 of <a href="#bib1">[1]</a>).</li>
+<li>Assume that the state machine is volatile (it is relevant, for example, in Chapter 3.8 of <a href="#bib1">[1]</a>).</li>
+<li>You do not have to implement the leadership transfer extension (Chapter 3.10 of <a href="#bib1">[1]</a>).</li>
+<li>When a follower receives a client request meant for a leader, it shall reject the request and include the leader’s identifier in the response if it knows the current term’s leader (Chapter 6.2 of <a href="#bib1">[1]</a>).</li>
+<li>When a server becomes a leader, it must append a <code>NoOp</code> entry to the log (nextIndex must be initialized with the index of this entry).</li>
+<li>A leader should convert itself into a follower if an election timeout elapses without a successful round of heartbeats with a majority of the cluster (Chapter 6.2 and Figure 6.1 of <a href="#bib1">[1]</a>). More precisely, the timing requirements for this behavior are analogous to the ones for timeouts in cluster membership changes, that is, this condition can be checked periodically.</li>
+<li>The log shall initially contain one <code>Configuration</code> entry with term <code>0</code>, timestamp <code>first_log_entry_timestamp</code> and servers <code>config.servers</code> (see <code>src/lib.rs</code> and <code>src/domain.rs</code>). The index of this entry is <code>0</code>.</li>
+<li>In every <em>AppendEntries</em> message:
+<ul>
+<li>if <code>nextIndex == matchIndex + 1</code>, send as many log entries as possible, but no more than <code>config.append_entries_batch_size</code> (see <code>src/domain.rs</code>) (Chapter 3.5 of <a href="#bib1">[1]</a>),</li>
+<li>otherwise send no log entries.</li>
+</ul></li>
+<li>When a leader has log entries to send to a follower, it should send <em>AppendEntries</em> immediately (rather than send <em>AppendEntries</em> only on heartbeat timeouts).</li>
+<li>A server shall ignore a <em>RequestVote</em> received within the minimum election timeout of hearing from a current leader (Chapter 4.2.3 of <a href="#bib1">[1]</a>). As a consequence of that, a leader shall always ignore a <em>RequestVote</em>.</li>
+<li>A server must not send any messages to itself.</li>
+</ul>
+<h4 id="snapshots">Snapshots</h4>
+<p>Snapshots are described in Chapter 5.1 of <a href="#bib1">[1]</a>. Your implementation shall follow Figure 5.3 of <a href="#bib1">[1]</a> and the following remarks:</p>
+<ul>
+<li>A snapshot shall also contain the state of client sessions from the moment of the snapshot. This information shall be sent only with the first chunk.</li>
+<li>To send a snapshot to a follower you can create a copy of the snapshot and keep it until the whole snapshot is sent (but you still have to send the snapshot chunk by chunk).</li>
+<li>Before sending the next chunk the leader shall wait for an acknowledgment that the current chunk has been received successfully.</li>
+<li>Your Raft implementation shall not take snapshots on its own. A snapshot shall be created only when a <em>Snapshot</em> client request (see <code>src/domain.rs</code>) is received.</li>
+<li>An <em>InstallSnaphot</em> message is considered a heartbeat just like <em>AppendEntries</em> (but you must not send <em>InstallSnapshot</em> when there is no reason to use it instead of <em>AppendEntries</em>).</li>
+</ul>
+<p>If you do not implement snapshots, your implementation shall panic by calling:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb1-1"><a href="#cb1-1"></a><span class="pp">unimplemented!</span>(<span class="st">&quot;Snapshots omitted&quot;</span>)</span></code></pre></div>
+<p>when it receives a <em>Snapshot</em> client request or <em>InstallSnapshot</em> and <em>InstallSnapshotResponse</em> messages (see <code>src/domain.rs</code>).</p>
+<h4 id="client-sessions">Client sessions</h4>
+<p>Client sessions are described in Chapter 6 of <a href="#bib1">[1]</a>. Your implementation shall follow Figure 6.1 of <a href="#bib1">[1]</a> and the following remarks:</p>
+<ul>
+<li>You do not have to implement read-only commands (<em>ClientQuery</em>, Chapter 6.4 of <a href="#bib1">[1]</a>).</li>
+<li>Finding the cluster (Chapter 6.1 of <a href="#bib1">[1]</a>) is beyond the scope of this assignment.</li>
+<li>You shall use the log index of the <code>RegisterClient</code> log entry (see <code>src/domain.rs</code>) as the client identifier.</li>
+<li>You shall allow concurrent requests from a single client (Chapter 6.3 of <a href="#bib1">[1]</a>).</li>
+<li>You shall use timestamps of committed entries to expire client sessions (Chapter 6.3 of <a href="#bib1">[1]</a>). The expiration interval is specified in the <code>ServerConfig</code> struct (see <code>src/domain.rs</code>). A session’s last activity time is the timestamp of the most recently committed log entry with this session’s client identifier. When committing a log entry, you should expire sessions <strong>before</strong> you update the last activity time.</li>
+<li>There are no assumptions about clock synchronization between servers.</li>
+</ul>
+<p>If you do not implement client sessions:</p>
+<ul>
+<li>When a <em>RegisterClient</em> client request (<code>src/domain.rs</code>) is received, your implementation shall commit a <code>RegisterClient</code> log entry (<code>src/domain.rs</code>), and reply with this entry’s log index once it is committed (Figure 6.1 of <a href="#bib1">[1]</a>). However, the implementation does not have to allocate a session.</li>
+<li><code>lowest_sequence_num_without_response</code> (<code>src/domain.rs</code>) shall be stored in the log, and <code>client_id</code> and <code>sequence_num</code> (<code>src/domain.rs</code>) shall be stored in the log and used when responding to messages, but they do not have to be verified in any way.</li>
+<li>Client sessions in snapshots shall be empty.</li>
+</ul>
+<h4 id="cluster-membership-changes">Cluster membership changes</h4>
+<p>Cluster membership changes are described in Chapter 4 of <a href="#bib1">[1]</a>. Your implementation shall follow Figure 4.1 of <a href="#bib1">[1]</a> and the following remarks:</p>
+<ul>
+<li><p>Pay special attention to the last part of Chapter 4.1 of <a href="#bib1">[1]</a> as it is important for the safety of the algorithm.</p></li>
+<li><p>When a leader removes itself from the cluster, it should step down as described in Chapter 4.2.2 of <a href="#bib1">[1]</a>.</p></li>
+<li><p>You must use all responses to membership change requests according to their descriptions in <code>src/domain.rs</code>. When multiple responses would make sense, prefer the one that appears first in <code>src/domain.rs</code>.</p></li>
+<li><p>A leader must wait until it has committed an entry from the current term before appending a configuration entry to the log. (This fixes a bug in the membership changes described in <a href="#bib1">[1]</a>. You can read about this bug <a href="https://groups.google.com/g/raft-dev/c/t4xj6dJTP6E/m/d2D9LrWRza8J">here</a>.)</p></li>
+<li><p>Regarding timeouts during catching servers up, it is enough to satisfy the following:</p>
+<ul>
+<li>When a server does not make progress for <code>2 * max election timeout</code>, or the last round takes longer than <code>2 * max election timeout</code>, there is a <em>TIMEOUT</em> reply.</li>
+<li>When a server always makes progress in less than <code>min election timeout</code>, and the last round takes shorter than <code>min election timeout</code>, there is no <em>TIMEOUT</em> reply.</li>
+</ul>
+<p>In other words, you are allowed to periodically check if there was progress during the last interval. The period has to be within the election timeout range and might be randomized on every timeout.</p></li>
+</ul>
+<p>If you do not implement cluster membership changes:</p>
+<ul>
+<li><p>Your implementation shall panic by calling:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">unimplemented!</span>(<span class="st">&quot;Cluster membership changes omitted&quot;</span>)</span></code></pre></div>
+<p>when it receives <em>AddServer</em> and <em>RemoveServer</em> client requests (see <code>src/domain.rs</code>),</p></li>
+<li><p>The cluster configuration shall still be included in snapshots.</p></li>
+</ul>
+<h3 id="assignment-specification">Assignment specification</h3>
+<p>To run the system you should use the module system you implemented as the first Large Assignment.</p>
+<h4 id="interface">Interface</h4>
+<p>Your solution must conform to the public interface provided in the template.</p>
+<p>You have to implement three functions (see <code>src/lib.rs</code>):</p>
+<ul>
+<li><code>Raft::new()</code>,</li>
+<li><code>&lt;Raft as Handler&lt;ClientRequest&gt;&gt;::handle()</code>,</li>
+<li><code>&lt;Raft as Handler&lt;RaftMessage&gt;&gt;::handle()</code>.</li>
+</ul>
+<p>You do not have to provide any implementations of <code>StableStorage</code>, <code>RaftSender</code> and <code>StateMachine</code> traits.</p>
+<p>You are not required to optimize stable storage updates (saving the entire persistent state on every update is fine).</p>
+<p><code>Raft</code> modules shall communicate with each other through the <code>message_sender</code> provided in <code>Raft::new()</code> (see <code>src/lib.rs</code>) and send and handle messages in a way consistent with the description of the Raft algorithm.</p>
+<p>For more information about the interface, see doc comments in the template and <a href="#bib1">[1]</a>.</p>
+<h4 id="testing">Testing</h4>
+<p>You are given a subset of official tests (see <code>public-tests/</code> in the package). They test individual parts of the assignment, and the system as a whole by implementing on top of it a distributed set that stores integers. Their intention is to make sure that the public interface of your solution is correct and to evaluate basic functionality.</p>
+<p>Your solution will be tested with the latest stable Rust version.</p>
+<h4 id="varia">Varia</h4>
+<p>You can use logging if you want to, but do not emit a large amount of logs at levels <code>&gt;= INFO</code> when the system is operating properly. All logging must be done via the <code>log</code> crate.</p>
+<p>You can only use crates specified in the provided <code>Cargo.toml</code> file.</p>
+<p>For a more compact description of Raft you can take a look at <a href="#bib2">[2]</a>. Keep in mind, though, that it can differ from <a href="#bib1">[1]</a>, which is the main source for this assignment. In particular, it describes a different, more complex implementation of cluster membership changes.</p>
+<p>The Raft papers use RPCs (Remote Procedure Calls), which are a slightly different model of communication than messages in the module system. Because of that, message responses in the template have a few fields that do not appear in Raft’s description.</p>
+<h4 id="grading">Grading</h4>
+<p>Your solution will be graded based on results of automated tests and code inspection. The number of available points is specified in the <a href="../../">Passing Rules</a> described on the main website of the course. Note that for this assignment there are no required or guaranteed points!</p>
+<h4 id="asking-questions">Asking questions</h4>
+<p>Questions <strong>must</strong> be asked on a dedicated Moodle forum. This way everybody will be able to read the answer. Try to ask questions early if there are any. We will try not to require any changes to existing solutions when providing answers.</p>
+<h4 id="submitting-solution">Submitting solution</h4>
+<p>Your solution must be submitted as a single <code>.zip</code> file with its name being your login at students (e.g., <code>ab123456.zip</code>). After unpacking the archive, a directory path named <code>ab123456/solution/</code> must be created. In the <code>solution</code> subdirectory there must be a Rust library crate that implements the required interface. Project <code>public-tests</code> must be able to be built and tested cleanly when placed next to the <code>solution</code> directory.</p>
+<p><span style="color:red;"> Remember that for this assignment no delays will be tolerated! </span></p>
+<h3 id="bibliography">Bibliography</h3>
+<ul>
+<li><p><span id="bib1">[1]</span> Diego Ongaro <em>“Consensus: Bridging Theory and Practice”</em> (<a href="https://raw.githubusercontent.com/ongardie/dissertation/master/online.pdf">https://raw.githubusercontent.com/ongardie/dissertation/master/online.pdf</a>)</p></li>
+<li><p><span id="bib2">[2]</span> Diego Ongaro, John Ousterhout <em>“In Search of an Understandable Consensus Algorithm (Extended Version)”</em> (<a href="https://raft.github.io/raft.pdf">https://raft.github.io/raft.pdf</a>)</p></li>
+</ul>
+<hr />
+<p>Authors: F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski.</p>
+</section>
+</body>
+</html>

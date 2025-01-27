@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski" />
+  <title>Distributed Systems Lab 02</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+body
+{
+font-family: Helvetica, sans;
+background-color: #f0f0f0;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+}
+section.content {
+width: 19cm;
+font-size: 12pt;
+text-align: justify;
+margin-left: auto;
+margin-right: auto;
+margin-top: 20pt;
+background-color: white;
+padding: 20pt;
+}
+h1
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: center;
+}
+h2
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+border-bottom: 1px solid #808080;
+}
+h3
+{
+font-size: x-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h1 + h3 {
+text-align: center;
+}
+h4
+{
+font-size: large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h5
+{
+font-size: medium;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h6
+{
+font-size: medium;
+text-decoration: none;
+font-weight: normal;
+text-align: left;
+}
+table
+{
+border-width: 1px;
+border-spacing: 0px;
+border-style: solid;
+border-color: #808080;
+border-collapse: collapse;
+font-family: Times, serif;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+background-color: white;
+}
+td
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+background-color: white;
+}
+th
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+font-weight: bold;
+background-color: #f0f0f0;
+}
+a:link {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:visited {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:hover {
+text-decoration: underline;
+font-weight: normal;
+}
+pre.sourceCode {
+font-size: 90%;
+}
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="distributed-systems-lab-02" class="content">
+<h1>Distributed Systems Lab 02</h1>
+<h3 id="concurrent-computing-in-rust">Concurrent computing in Rust</h3>
+<p>During the previous lab, we presented how to code basic programs in Rust and discussed some crucial features of the language, like ownership, noting that they are essential to ensuring memory safety and thread safety. This lab presents multi-threaded programming in Rust and discusses the safety features of Rust that facilitate making programs memory-safe and thread-safe. We will use files contained in <a href="./dslab02.tgz">this package</a>, which you should download and extract locally.</p>
+<h2 id="learning-section">Learning Section</h2>
+<h3 id="memory-management">Memory management</h3>
+<p>By default, values of Rust variables are stored on the stack. To safely manage data on the heap, in turn, Rust provides two special types: <strong><code>Box</code></strong> and <strong><code>Rc</code></strong>. Direct allocations on the heap are possible, but they require using <em>unsafe</em> blocks, and thus should be avoided whenever possible.</p>
+<p><code>Box&lt;T&gt;</code> is a pointer type for heap allocation. An object of type <code>Box&lt;T&gt;</code> owns a value of type <code>T</code> that is stored on the heap, and the object can be used as a reference (mutable or immutable) to the value. When the object goes out of scope, the value is deallocated automatically. For instance:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">fn</span> box_example() <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="kw">let</span> array_on_heap<span class="op">:</span> <span class="dt">Box</span><span class="op">&lt;</span>[<span class="dt">u32</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="dt">Box</span><span class="pp">::</span>new([<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">42</span>])<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    <span class="pp">println!</span>(<span class="st">&quot;An array stored on the heap: {:?}&quot;</span><span class="op">,</span> array_on_heap)<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="op">}</span> <span class="co">// The memory is deallocated here.</span></span></code></pre></div>
+<p><code>Rc&lt;T&gt;</code> is a reference-counting pointer. The reference-counting mechanism allows for safely obtaining multiple references to the value by cloning the reference (<code>Rc&lt;T&gt;</code> implements the <code>Clone</code> trait). However, it is not possible to mutate directly the value wrapped in <code>Rc</code>, as it would be unsafe to mutate a value shared via multiple references. The referenced value is deallocated when the last reference goes out of scope. For example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">fn</span> rc_example() <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>    <span class="kw">let</span> array_on_heap<span class="op">:</span> Rc<span class="op">&lt;</span>[<span class="dt">u32</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="pp">Rc::</span>new([<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">42</span>])<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="kw">let</span> array_on_heap_2 <span class="op">=</span> array_on_heap<span class="op">.</span>clone()<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="pp">println!</span>(</span>
+<span id="cb2-6"><a href="#cb2-6"></a>        <span class="st">&quot;Two references to an array on the heap: {:?} and {:?}&quot;</span><span class="op">,</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>        array_on_heap<span class="op">,</span> array_on_heap_2</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    )<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="op">}</span> <span class="co">// The reference counter drops to 0 here,</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>  <span class="co">// and  the memory is deallocated.</span></span></code></pre></div>
+<p>More advanced examples demonstrating the usage of <code>Box</code> and <code>Rc</code> are provided in file <code>examples/box_rc.rs</code> included in the package. If you know C++, <code>Box</code> is like a unique pointer whereas <code>Rc</code> is like a shared pointer.</p>
+<p><code>Box</code> and <code>Rc</code> are said to be safe APIs. In the context of memory management, this means that they guarantee that no memory is freed more than once and no memory is accessed after being freed. Moreover, any memory that will not be used anymore is freed automatically. Rust achieves this by the combination of the <strong>ownership</strong> mechanisms, introduced during the previous lab, and the <strong><code>Drop</code> trait</strong>, discussed next.</p>
+<h4 id="the-drop-trait">The Drop trait</h4>
+<p>During the lifetime of a process, a lot of resources need to be managed: memory, files, sockets, and so on. Some languages, C for instance, require the programmer to precisely manage the resources by hand. Other languages, like Java, implement automated garbage collection. However, such approaches are orientented mainly toward memory. There are also languages, C++ for instance, providing a way to implement destructors, which free resources when variables holding them are no longer needed. However, to this end, C++ requires a careful design of a class, for instance, disabling the copy constructor.</p>
+<p>Rust follows the approach of C++, but the ownership mechanisms facilitate it significantly. Since each value (or each instance of some resource) has exactly one variable that owns it, the resource can be safely freed when the variable goes out of scope. This freeing is handled by the <code>drop()</code> method from the <code>Drop</code> trait, which is automatically invoked by Rust when a value is no longer needed. For instance:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">fn</span> drop_example() <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>    <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>        <span class="kw">let</span> int_on_heap <span class="op">=</span> <span class="dt">Box</span><span class="pp">::</span>new(<span class="dv">42</span>)<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="op">}</span> <span class="co">// `Box::drop()` called here and it deallocates the memory.</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a>    <span class="op">{</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>        <span class="kw">let</span> vec_on_heap <span class="op">=</span> <span class="dt">Box</span><span class="pp">::</span>new(<span class="pp">vec!</span>[<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">5</span>])<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>        take_box_ownership(vec_on_heap)<span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>    <span class="op">}</span> <span class="co">// `Box::drop()` is NOT called here as the box was moved</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>      <span class="co">// out of `vec_on_heap` in the above function call.</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="op">}</span></span></code></pre></div>
+<p>By providing a proper implementation of the <code>Drop</code> trait, any kind of resource can be managed this way in Rust. File <code>examples/drop.rs</code> presents how this mechanism is used to close open files, and provides a simple example of a custom implementation of the <code>Drop</code> trait.</p>
+<h3 id="closures">Closures</h3>
+<p><strong>Closures</strong> are anonymous functions that can be saved in variables or passed to functions just as ordinary values. Closures can also capture values from the scope they are defined in, for example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">fn</span> closure_example() <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="kw">let</span> inc_step <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="kw">let</span> inc_fun <span class="op">=</span> <span class="op">|</span>x<span class="op">:</span> <span class="dt">u32</span><span class="op">|</span> <span class="op">{</span> x <span class="op">+</span> inc_step <span class="op">};</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="pp">println!</span>(<span class="st">&quot;inc_fun(2) = {}&quot;</span><span class="op">,</span> inc_fun(<span class="dv">2</span>))<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="op">}</span></span></code></pre></div>
+<p>It is also possible to move values into closures, for instance:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">fn</span> closure_move_example() <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>    <span class="kw">let</span> file <span class="op">=</span> <span class="pp">File::</span>open(<span class="st">&quot;example.txt&quot;</span>)<span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="kw">let</span> read_file <span class="op">=</span> <span class="kw">move</span> <span class="op">||</span> <span class="op">{</span> file<span class="op">.</span>read() <span class="op">};</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="pp">println!</span>(<span class="st">&quot;File content: {}&quot;</span><span class="op">,</span> read_file())<span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="co">// Won&#39;t compile as `file` was moved out to the closure:</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="co">// file.rewind()</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="op">}</span></span></code></pre></div>
+<p>More advanced examples of closures are provided in <code>examples/closures.rs</code>.</p>
+<h3 id="multiple-threads-of-execution">Multiple threads of execution</h3>
+<p>Rust allows for implementing relatively easily programs with multiple threads of execution. For instance, to create a new thread, one can use the <code>std::thread::spawn()</code> function, which accepts as its argument a closure to be executed in the new thread (see <code>examples/threads.rs</code> for examples). Moreover, the safety features of Rust facilitate making the programs thread-safe. For example, consider the following problem of reference counting in two threads:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">fn</span> reference_counting_in_two_threads() <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>    <span class="kw">let</span> rc <span class="op">=</span> <span class="pp">Rc::</span>new(<span class="dv">1</span>)<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="kw">let</span> rc_clone <span class="op">=</span> rc<span class="op">.</span>clone()<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="kw">let</span> thread <span class="op">=</span> <span class="pp">std::thread::</span>spawn(<span class="kw">move</span> <span class="op">||</span> <span class="op">{</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>        <span class="kw">let</span> v <span class="op">=</span> rc_clone<span class="op">.</span>clone()<span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>        <span class="co">// ...</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="op">}</span>)<span class="op">;</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="kw">let</span> v <span class="op">=</span> rc<span class="op">.</span>clone()<span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>    <span class="co">// ...</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a>    thread<span class="op">.</span>join()<span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="op">}</span></span></code></pre></div>
+<p>Without any additional synchronization, the above code might result in an invalid state of the reference counter due to the possible concurrent updates (and thus to problems like memory leaks, use after free, and so on). Fortunately, an attempt to compile the above example results in an error. This is because to ensure thread-safety, Rust introduces two special traits:</p>
+<ul>
+<li><strong><code>Sync</code></strong>, which marks types for which it is safe to share references to them between threads.</li>
+<li><strong><code>Send</code></strong>, which marks types that can be safely transferred across threads boundaries.</li>
+</ul>
+<p>The compiler automatically derives the traits for custom types if they are composed only of types which are <em>Sync</em>/<em>Send</em>. It is not possible to mark a type as <em>Sync</em>/<em>Send</em> oneself without using <code>unsafe</code>. These traits are named <strong>marker traits</strong>, as they do not implement any methods, but they are used to declare that a type fulfills the above requirements.</p>
+<p>The <code>spawn()</code> function accepts as its argument only closures that are <em>Send</em>, and a closure is <em>Send</em> when its environment consists only of values that are <em>Send</em>. This is not the case in the above example, because <code>Rc</code> is not <em>Send</em>, and hence, the compilation failure.</p>
+<h4 id="mutex">Mutex</h4>
+<p>To ensure safe accesses to some data that is shared between multiple threads, the accesses can be synchronized. Rust provides multiple synchronization primitives, for instance, the <strong><code>Mutex&lt;T&gt;</code></strong> type. This generic type implements mutual exclusion, and can thus be used to protect some value of type <code>T</code>. As expected, <code>Mutex</code> implements the <code>Sync</code> and <code>Send</code> traits. A simple example follows:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">fn</span> data_protected_by_mutex() <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>    <span class="kw">let</span> data_behind_mutex <span class="op">=</span> <span class="pp">Mutex::</span>new(<span class="pp">vec!</span>[<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span>])<span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>        <span class="co">// Take the lock:</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>        <span class="kw">let</span> <span class="kw">mut</span> data <span class="op">=</span> data_behind_mutex<span class="op">.</span>lock()<span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a></span>
+<span id="cb7-7"><a href="#cb7-7"></a>        <span class="co">// `Mutex::lock()` returns a wrapper around the mutable</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>        <span class="co">// reference to the value, called `MutexGuard`.</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a>        <span class="co">// Safely modify the data:</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>        data<span class="op">.</span>push(<span class="dv">4</span>)<span class="op">;</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>    <span class="op">}</span> <span class="co">// When the lock wrapper goes out of scope,</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>      <span class="co">// the `drop()` is called, and the lock is released.</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a><span class="op">}</span></span></code></pre></div>
+<h4 id="arc">Arc</h4>
+<p>To access a value wrapped in <code>Mutex</code> from multiple threads, a thread-safe reference is needed (<code>Rc</code> is not thread-safe). To this end Rust provides the <strong><code>Arc&lt;T&gt;</code></strong> type, a thread-safe pointer with an atomic counter (<em>Arc</em> stands for <em>Atomically Reference Counted</em>). Wrapping a value that is <em>Send</em> and <em>Sync</em> in the <code>Arc</code> results in a reference that is <em>Send</em> and <em>Sync</em>, as well as it can be cloned to obtain multiple references to the value (<code>Arc</code> implements the <code>Clone</code> trait). A simple example follows:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">fn</span> sharing_data_between_threads() <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>    <span class="kw">let</span> shared_data <span class="op">=</span> <span class="pp">Arc::</span>new(<span class="pp">Mutex::</span>new(<span class="pp">vec!</span>[<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span>]))<span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="kw">let</span> shared_data_copy <span class="op">=</span> shared_data<span class="op">.</span>clone()<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a>    <span class="pp">std::thread::</span>spawn(<span class="kw">move</span> <span class="op">||</span> <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a>        <span class="co">// Safely modify the data:</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>        shared_data_copy<span class="op">.</span>lock()<span class="op">.</span>unwrap()<span class="op">.</span>push(<span class="dv">4</span>)<span class="op">;</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="op">}</span>)<span class="op">;</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a></span>
+<span id="cb8-10"><a href="#cb8-10"></a>    <span class="co">// Safely modify the data:</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a>    shared_data<span class="op">.</span>lock()<span class="op">.</span>unwrap()<span class="op">.</span>push(<span class="dv">4</span>)<span class="op">;</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="op">}</span></span></code></pre></div>
+<h4 id="condvar">Condvar</h4>
+<p>Multi-threaded programs may also require blocking threads until some event occurs. To this end, Rust provides the <strong><code>Condvar</code></strong> type which is a condition variable. A thread awaiting a shared <code>Condvar</code> is suspended, and then woken up when another thread calls the <code>notify_one()</code> or <code>notify_all()</code> method of the variable. Moreover, <code>Condvar</code> is typically paired with <code>Mutex</code>. This way a lock held by a thread is atomically released when the thread is blocked on the conditional variable, and the lock is reacquired when the thread is woken up. When using <code>Condvar</code>, spurious wake-ups are possible (i.e. wake-ups not caused by a call to <code>notify_one()</code> or <code>notify_all()</code>). A simple example follows:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">fn</span> waiting_for_event() <span class="op">{</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>    <span class="co">// Mutex and condition variable are typically used as a pair:</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="kw">let</span> pair <span class="op">=</span> <span class="pp">Arc::</span>new((<span class="pp">Mutex::</span>new(<span class="cn">false</span>)<span class="op">,</span> <span class="pp">Condvar::</span>new()))<span class="op">;</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="kw">let</span> pair_cloned <span class="op">=</span> pair<span class="op">.</span>clone()<span class="op">;</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a>    <span class="pp">thread::</span>spawn(<span class="kw">move</span><span class="op">||</span> <span class="op">{</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>        <span class="kw">let</span> (lock<span class="op">,</span> condvar) <span class="op">=</span> <span class="op">&amp;*</span>pair_cloned<span class="op">;</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a></span>
+<span id="cb9-9"><a href="#cb9-9"></a>        <span class="co">// Lock the mutex:</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a>        <span class="kw">let</span> <span class="kw">mut</span> started <span class="op">=</span> lock<span class="op">.</span>lock()<span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a></span>
+<span id="cb9-12"><a href="#cb9-12"></a>        <span class="co">// Safely modify the data:</span></span>
+<span id="cb9-13"><a href="#cb9-13"></a>        <span class="op">*</span>started <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb9-14"><a href="#cb9-14"></a></span>
+<span id="cb9-15"><a href="#cb9-15"></a>        <span class="co">// Notify the other thread:</span></span>
+<span id="cb9-16"><a href="#cb9-16"></a>        condvar<span class="op">.</span>notify_one()<span class="op">;</span></span>
+<span id="cb9-17"><a href="#cb9-17"></a>    <span class="op">}</span>)<span class="op">;</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a></span>
+<span id="cb9-19"><a href="#cb9-19"></a>    <span class="kw">let</span> (lock<span class="op">,</span> condvar) <span class="op">=</span> <span class="op">&amp;*</span>pair<span class="op">;</span></span>
+<span id="cb9-20"><a href="#cb9-20"></a></span>
+<span id="cb9-21"><a href="#cb9-21"></a>    <span class="co">// Lock the mutex:</span></span>
+<span id="cb9-22"><a href="#cb9-22"></a>    <span class="kw">let</span> <span class="kw">mut</span> started <span class="op">=</span> lock<span class="op">.</span>lock()<span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb9-23"><a href="#cb9-23"></a></span>
+<span id="cb9-24"><a href="#cb9-24"></a>    <span class="co">// If the predicate does not hold...:</span></span>
+<span id="cb9-25"><a href="#cb9-25"></a>    <span class="kw">while</span> <span class="op">!*</span>started <span class="op">{</span></span>
+<span id="cb9-26"><a href="#cb9-26"></a>        <span class="co">// ...wait for the notification (the thread</span></span>
+<span id="cb9-27"><a href="#cb9-27"></a>        <span class="co">// suspened and the lock is released atomically):</span></span>
+<span id="cb9-28"><a href="#cb9-28"></a>        started <span class="op">=</span> condvar<span class="op">.</span>wait(started)<span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb9-29"><a href="#cb9-29"></a></span>
+<span id="cb9-30"><a href="#cb9-30"></a>        <span class="co">// Being here means holding the lock, but does not mean</span></span>
+<span id="cb9-31"><a href="#cb9-31"></a>        <span class="co">// the predicate holds because of the spurious wake-ups!</span></span>
+<span id="cb9-32"><a href="#cb9-32"></a>    <span class="op">}</span></span>
+<span id="cb9-33"><a href="#cb9-33"></a></span>
+<span id="cb9-34"><a href="#cb9-34"></a>    <span class="co">// The lock is held, the predicate holds.</span></span>
+<span id="cb9-35"><a href="#cb9-35"></a><span class="op">}</span></span></code></pre></div>
+<h4 id="atomicbool">AtomicBool</h4>
+<p>When only simple information needs to be shared between multiple threads, Rust provides some simple thread-safe types, for instance, the <strong><code>AtomicBool</code></strong> type (there are also atomic integer types). <code>AtomicBool</code>, next to simple load and store operations, implements also more complex atomic operations like <code>swap()</code>, <code>compare_exchange()</code>, or <code>fetch_update()</code> for different atomic memory orderings. A simple example follows:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">fn</span> am_i_first() <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>    <span class="kw">let</span> is_first <span class="op">=</span> <span class="pp">Arc::</span>new(<span class="pp">AtomicBool::</span>new(<span class="cn">true</span>))<span class="op">;</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="kw">let</span> is_first_clone <span class="op">=</span> is_first<span class="op">.</span>clone()<span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a></span>
+<span id="cb10-5"><a href="#cb10-5"></a>    <span class="kw">let</span> thread <span class="op">=</span> spawn(<span class="kw">move</span> <span class="op">||</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>        is_first_clone<span class="op">.</span>store(<span class="cn">false</span><span class="op">,</span> <span class="pp">Ordering::</span>Relaxed)<span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>    <span class="op">}</span>)<span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a></span>
+<span id="cb10-9"><a href="#cb10-9"></a>    <span class="pp">println!</span>(<span class="st">&quot;Am I first? {}&quot;</span><span class="op">,</span> is_first<span class="op">.</span>load(<span class="pp">Ordering::</span>Relaxed))<span class="op">;</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a></span>
+<span id="cb10-11"><a href="#cb10-11"></a>    thread<span class="op">.</span>join()<span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="op">}</span></span></code></pre></div>
+<p>More examples with <code>Mutex</code>, <code>Arc</code>, <code>Condvar</code>, and <code>AtomicBool</code> are provided in <code>examples/shared_memory.rs</code>.</p>
+<h2 id="small-assignment">Small Assignment</h2>
+<p>Your task is to implement in Rust a thread pool. The thread pool is a structure that owns a few threads, called <em>workers</em>, and allows for submitting <em>tasks</em> that the workers execute. Every worker operates in a loop: it waits for a task, executes it, waits for the next task, and so on. The thread pool manages the workers and distributes the tasks to the workers. Multiple strategies are possible, but in the assignment you shall implement arguably the simplest one:</p>
+<ul>
+<li>There is a fixed number of threads, specified when the thread pool is constructed.</li>
+<li>The tasks can be executed in any order.</li>
+</ul>
+<p>The thread pool shall process tasks concurrently. To synchronize the threads, we suggest using a mutex with a conditional variable.</p>
+<p>The pool shall be recognized by Rust as <em>Sync</em>. You are not allowed to write any <em>unsafe</em> code (more precisely, you are not allowed to use the <code>unsafe</code> keyword and such a code would not compile).</p>
+<p>Also, you shall implement the <code>Drop</code> trait for the thread pool. It shall stop all workers and wait for all threads to finish. It shall also wait until all submitted tasks are executed.</p>
+<p>In the template for the assignment, we provide some hints, placing them in comments and in the <code>unimplemented!()</code> macros. However, they are only hints, and you are not obliged to follow them. You may implement the assignment differently as long as you do not modify the public interface.</p>
+<h3 id="type-of-the-task">Type of the task</h3>
+<p>In the assignment, a task is a closure of the following type:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">type</span> Task <span class="op">=</span> <span class="dt">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="bu">FnOnce</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="op">+</span> <span class="bu">Send</span><span class="op">&gt;;</span></span></code></pre></div>
+<p>This type specifies a closure that shall be run only once (the compiler verifies this), which is wrapped in a <code>Box</code> (so the actual closure is stored on the heap, and thus the size of a task is known at compile time), and which is marked as <em>Send</em> (the compiler verifies whether it is indeed <em>Send</em>). The <code>dyn</code> keyword means, simplifying, that objects that will be wrapped in the <code>Box</code> have to implement the <code>FnOnce&lt;()&gt;</code> and <code>Send</code> traits. However, their exact type is not specified. They can be instances of any type, as long as they implement the <code>FnOnce&lt;()&gt;</code> and <code>Send</code> traits (as opposed to, for instance, <code>Box&lt;String&gt;</code>, where objects wrapped in <code>Box</code> have to be instances of <code>String</code>). Since the actual type of the objects will be known only at runtime, calls to their methods have to be dynamically dispatched. (For a more detailed explanation, we recommend reading about <strong>trait objects</strong> in the <a href="https://doc.rust-lang.org/book/ch17-02-trait-objects.html">Rust Book</a>).</p>
+<h2 id="additional-homework">Additional Homework</h2>
+<p>Practice coding in Rust as on the next lab we will discuss and implement the first model of distributed computing. We recommend browsing the <a href="https://doc.rust-lang.org/book/">Rust Book</a> and the <a href="https://doc.rust-lang.org/rust-by-example/index.html">Rust by Example</a> if you have not already done it.</p>
+<p>If you got interested in the language itself, you may want to read about other applications of the Rust programming language. For example, about programming embedded systems, like microcontrollers, in <a href="https://docs.rust-embedded.org/book/intro/index.html">The Embedded Rust Book</a>, or about developing fast and reliable code for the Web in <a href="https://rustwasm.github.io/docs/book/introduction.html">Rust and WebAssembly</a>.</p>
+<hr />
+<p>Authors: F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski, M. Matraszek.</p>
+</section>
+</body>
+</html>

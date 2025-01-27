@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski" />
+  <title>Distributed Systems Lab 10</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <style type="text/css">
+body
+{
+font-family: Helvetica, sans;
+background-color: #f0f0f0;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+}
+section.content {
+width: 19cm;
+font-size: 12pt;
+text-align: justify;
+margin-left: auto;
+margin-right: auto;
+margin-top: 20pt;
+background-color: white;
+padding: 20pt;
+}
+h1
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: center;
+}
+h2
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+border-bottom: 1px solid #808080;
+}
+h3
+{
+font-size: x-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h1 + h3 {
+text-align: center;
+}
+h4
+{
+font-size: large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h5
+{
+font-size: medium;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h6
+{
+font-size: medium;
+text-decoration: none;
+font-weight: normal;
+text-align: left;
+}
+table
+{
+border-width: 1px;
+border-spacing: 0px;
+border-style: solid;
+border-color: #808080;
+border-collapse: collapse;
+font-family: Times, serif;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+background-color: white;
+}
+td
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+background-color: white;
+}
+th
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+font-weight: bold;
+background-color: #f0f0f0;
+}
+a:link {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:visited {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:hover {
+text-decoration: underline;
+font-weight: normal;
+}
+pre.sourceCode {
+font-size: 90%;
+}
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="distributed-systems-lab-10" class="content">
+<h1>Distributed Systems Lab 10</h1>
+<h3 id="consensus-leader-election">Consensus: Leader election</h3>
+<p>During the previous lab, we discussed how to implement distributed commit, presenting 2PC and 3PC algorithms. The following two labs concern Raft, a distributed consensus algorithm. This lab presents its first part, leader election, whereas the following lab will discuss the second part, log replication. We will use files contained in <a href="./dslab10.tgz">this package</a>, which you should download and extract locally.</p>
+<h2 id="learning-section">Learning section</h2>
+<h3 id="consensus">Consensus</h3>
+<p>Consider a distributed system which is supplied a series of operations, each to be executed by all its processes. The operations might be supplied by multiple independent clients, so to maintain a consistent state across the system, all the processes have to operate on the same initial values, execute all operations in the same way and in the same order. For example, a distributed key–value database has to assure that all its processes start with the same initial set of data, that all processes implement the <code>store</code> and <code>retrieve</code> operations in the same way, and that all processes execute all incoming requests in the same order; otherwise, clients might observe inconsistent responses (e.g., a <code>retrieve</code> operation would return an incorrect value if it was executed by some process after a consecutive <code>store</code> operation). In the field of distributed system, this problem is known as <strong>state machine replication (SMR)</strong>, as all processes of such a system have to implement the same automaton, and then execute the same series of its state transitions.</p>
+<p>In practice, replicating a state machine itself can be implemented relatively straightforwardly: all processes can be built from the same, deterministic source code (thus they execute exactly the same program), and the initial values can be hard-coded. However, replicating a series of operations received from multiple clients is, in turn, a fundamental problem of distributed systems. It is named <strong>log replication</strong> because the series of operations can be viewed as consecutive entries in a log. If the entries are ordered the same way in every process’s log, then to maintain a consistent state of the system, each process just needs to execute the entries in the order they appear in its log. In other words, the processes need to agree on the order of entries (i.e., for all <em>n</em>, the <em>n</em>-th entry in each process’s log must be the same.)</p>
+<p>To this end, distributed systems usually employ some <strong>consensus</strong> algorithm, which instructs their processes how to agree on a common value. Multiple consensus algorithm have been designed so far, for instance, <strong>Paxos</strong>, which was presented during the lectures, and <strong>Raft</strong>, which will be discussed during this lab.</p>
+<h3 id="assumptions">Assumptions</h3>
+<p>In the following discussion we assume the crash-recovery failure model (individual processes crash and recover, but there are no Byzantine failures and no network failures). Moreover, we assume that all processes in the system implement the same algorithm (e.g., they are built from the same, deterministic source code).</p>
+<h3 id="raft">Raft</h3>
+<p>Raft is a consensus algorithm which manages a replicated log across all processes of a distributed system. The process of appending new entries to the log is coordinated by a single designated process, named <strong>leader</strong>, as this approach facilitates assuring correctness and safety of the system (although it restricts scalability as all append requests are processed by a single process). Therefore, Raft decomposes the consensus problem into two subproblems:</p>
+<ol type="1">
+<li><strong>leader election</strong>,</li>
+<li><strong>log replication</strong>.</li>
+</ol>
+<p>A full solution requires also considering a few implementation details, such as:</p>
+<ul>
+<li>log compaction (the log should not grow indefinitely),</li>
+<li>client interaction (the system’s interface should provide linearizable semantics),</li>
+<li>membership changes in the cluster (the system should handle dynamic addition and removal of processes).</li>
+</ul>
+<p>This lab presents leader election. Log replication will be discussed during the following lab, and the implementation details will be a part of the third Large Assignment.</p>
+<h4 id="basic-notions">Basic notions</h4>
+<p>From the Raft’s perspective, time is divided into <strong>terms</strong>, numbered with consecutive integers. Each term begins with an election of a new leader, and lasts as long as the leader is alive and responsive to other processes. If the election fails, a next term is begun by launching a new leader election.</p>
+<p>There is no physical global clock in Raft. Instead, the terms serve as a logical clock, and every process tracks the current term number itself. Processes append the term number to every message they send. When a process receives a message with a larger term number than it has locally, it updates its term number and steps down from being the leader or a candidate for the leader (if it is one).</p>
+<h4 id="leader-election">Leader election</h4>
+<p>The process of leader election can be initiated by any process in the system. Such a process nominates itself as a <strong>candidate</strong>, increments its term number, votes for itself, and sends <em>RequestVote</em> messages to all other processes. In a response to the message, every process votes on the candidacy. A process votes for the candidate, if it is the first vote request it received for the term number greater than or equal to its term number. Otherwise, if it is not the first vote request the process received for this term number (so either the process already voted in this term or the message’s term is older), the process votes against the candidate.</p>
+<p>During the election process, the candidate can also receive a message from another process claiming to be the leader. If the leader’s term is greater than or equal to the candidate’s term, then the candidate recognizes the leader and becomes a <strong>follower</strong> itself; otherwise, the candidate just responds to the message and continues waiting for replies with votes. Followers only respond to messages from leader or candidates, and at boot each process starts by being a follower.</p>
+<p>A candidate wins an election and becomes the leader if it receives a majority of votes. If it does not receive the required number of votes over an <em>election timeout</em>, and it does not receive a message from a leader, then it restarts the election process (i.e., it increments its term number, votes for itself, and sends new <em>RequestVote</em> messages).</p>
+<p>To notify other processes about its leadership, the elected leader periodically sends <em>Heartbeat</em> messages to them. Processes always respond to <em>Heartbeat</em> messages (if the <em>Heartbeat</em> has an outdated term, this lets its sender update its term). When some follower does not receive a <em>Heartbeat</em> over the election timeout, it assumes that the current leader is no longer active (e.g., it has crashed), and if it does not receive any message from a new candidate, it initiates election of a new leader itself.</p>
+<p>The algorithm is not guaranteed to terminate. In practice, however, randomizing processes’ timeouts is enough to make nearly all elections end after one round. The timeout should be randomized each time it is restarted, that is, each time a valid message is received.</p>
+<p>Moreover, for the election to work smoothly, apart from the randomization, the following must hold:</p>
+<p><code>broadcast period &lt;&lt; election timeout &lt;&lt; mean time between failures</code></p>
+<p>where <code>x &lt;&lt; y</code> means that <code>y</code> is much bigger than <code>x</code> (in our context, at least 10-times bigger).</p>
+<p>Raft requires a majority of the system to be alive and responsive. Otherwise, given the election rules, it would not be able to elect a leader.</p>
+<h4 id="invariant-of-leader-election">Invariant of leader election</h4>
+<p>In any given term, there is at most one leader (could be zero when, for instance, there are two candidates and each receives a half of the votes). This is because in one term every process has one vote, and a majority of votes is necessary for a process to assume its leadership.</p>
+<h4 id="in-a-nutshell">In a nutshell</h4>
+<p>At any give time, each Raft process can be in one of the three states:</p>
+<ul>
+<li>leader,</li>
+<li>candidate,</li>
+<li>follower.</li>
+</ul>
+<p>Every process:</p>
+<ul>
+<li>at boot becomes a follower,</li>
+<li>if an inbound message contains a newer term, updates its term to match it and converts into a follower.</li>
+</ul>
+<p>Followers:</p>
+<ul>
+<li>a follower must respond to messages from leaders and candidates,</li>
+<li>if a follower receives no message or does not grant vote over a timeout, it converts into a candidate.</li>
+</ul>
+<p>Candidates:</p>
+<ul>
+<li>after a conversion, a candidate starts an election,</li>
+<li>if the candidate receives a majority of the votes, it becomes a leader,</li>
+<li>if the candidate receives a heartbeat from a leader, it becomes a follower,</li>
+<li>if the election times out, the candidate starts a new one.</li>
+</ul>
+<p>Leader:</p>
+<ul>
+<li>it prevents new elections by broadcasting heartbeats periodically.</li>
+</ul>
+<p>The transitions between the states are also illustrated in a <a href="raft_election.svg">diagram</a>.</p>
+<h2 id="small-assignment">Small Assignment</h2>
+<p>Your task is to implement the leader election of Raft. You shall complete the implementation of the system provided in the template, following the interfaces and doc comments defined there.</p>
+<p>In contrast to real-world implementations, do not add any randomization to timeouts, but use them as they are provided (this is necessary for testing). The leader shall send 10 <em>Heartbeats</em> during a timeout.</p>
+<p>This Small Assignment is worth <strong>2 points</strong>. To run the system you should use the executor system you implemented as the first Large Assignment.</p>
+<h2 id="additional-homework">Additional Homework</h2>
+<p>Read the <a href="https://raft.github.io/raft.pdf">Raft paper</a> if you wish to read the original source. In the paper the <em>Heartbeat</em> message is defined as an empty <em>AppendEntries</em> message (we renamed it here to focus solely on the leader election).</p>
+<p>If you have problems with understanding the leader election in Raft, read <a href="https://kasunindrasiri.medium.com/understanding-raft-distributed-consensus-242ec1d2f521">this blog entry</a>, watch <a href="http://thesecretlivesofdata.com/raft/#election">this visualization</a>, or play with a <a href="https://raft.github.io/">visualization here</a>.</p>
+<p>As an example of a real-world application of Raft we recommend browsing <a href="https://github.com/tikv/tikv"><em>TiKV</em></a>, which is a distributed key–value database. What is more, it is implemented in Rust.</p>
+<p>When employing Raft in real-world applications, one should remember about the assumption of no Byzantine and no network failures. Without it, Raft does not guarantee liveness and Cloudflare, as they described in their <a href="https://blog.cloudflare.com/a-byzantine-failure-in-the-real-world/">blog post</a>, learned this the hard way. The algorithm, however, can be extended to handle network failures. Read the <a href="https://decentralizedthoughts.github.io/2020-12-12-raft-liveness-full-omission/">blog post</a> by Heidi Howard and Ittai Abraham to learn how.</p>
+<p>During the next lab, we will discuss the remaining part of the Raft consensus algorithm, the log replication.</p>
+<hr />
+<p>Authors: F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski.</p>
+</section>
+</body>
+</html>
