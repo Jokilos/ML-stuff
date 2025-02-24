@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski" />
+  <title>Distributed Systems Lab 04</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+body
+{
+font-family: Helvetica, sans;
+background-color: #f0f0f0;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+}
+section.content {
+width: 19cm;
+font-size: 12pt;
+text-align: justify;
+margin-left: auto;
+margin-right: auto;
+margin-top: 20pt;
+background-color: white;
+padding: 20pt;
+}
+h1
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: center;
+}
+h2
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+border-bottom: 1px solid #808080;
+}
+h3
+{
+font-size: x-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h1 + h3 {
+text-align: center;
+}
+h4
+{
+font-size: large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h5
+{
+font-size: medium;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h6
+{
+font-size: medium;
+text-decoration: none;
+font-weight: normal;
+text-align: left;
+}
+table
+{
+border-width: 1px;
+border-spacing: 0px;
+border-style: solid;
+border-color: #808080;
+border-collapse: collapse;
+font-family: Times, serif;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+background-color: white;
+}
+td
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+background-color: white;
+}
+th
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+font-weight: bold;
+background-color: #f0f0f0;
+}
+a:link {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:visited {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:hover {
+text-decoration: underline;
+font-weight: normal;
+}
+pre.sourceCode {
+font-size: 90%;
+}
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="distributed-systems-lab-04" class="content">
+<h1>Distributed Systems Lab 04</h1>
+<h3 id="asynchronous-programming">Asynchronous programming</h3>
+<p>During the previous lab, we presented basic ideas behind a so-called event-driven shared-nothing architecture and discussed how to implement them as an executor system on top of operating system threads. This lab presents asynchronous programming in Rust, which should facilitate more efficient implementations of the executor system. We will use files contained in <a href="./dslab04.tgz">this package</a>, which you should download and extract locally.</p>
+<p>Moreover, this lab features no Small Assignment. Instead, you will be required to solve <a href="../LA1">the first Large Assignment</a>.</p>
+<h2 id="learning-section">Learning Section</h2>
+<h3 id="asynchronous-programming-1">Asynchronous programming</h3>
+<p>Traditionally, computations within a single thread of execution are synchronous: consecutive instructions are executed by the CPU one by one (some CPUs do implement out-of-order execution, but it is largely hidden from the programmers), and a call to a function requires completing the execution of the function before the subsequent instruction is executed.</p>
+<p>However, in some applications, this approach is cumbersome. For instance, in the event-driven shared-nothing architecture, it requires splitting the functionality of a module into multiple handlers and storing and restoring some state when subsequent messages are sent and received. Moreover, in the executor system, a careless assignment of modules to executors may result in degraded performance, for instance, when the workload is not balanced between the threads optimally.</p>
+<p>In such an application, one may use the <strong>asynchronous programming</strong> paradigm. It introduces a concept of computations whose result is initially unknown and provides means of executing them asynchronously and continuing the main computations when the result is ready. Asynchronous programming is supported by multiple modern programming languages under various names, including a <em>future</em>, a <em>promise</em>, a <em>delay</em>, a <em>deferred</em>, and the like.</p>
+<h4 id="example-asynchronous-programming-task">Example asynchronous programming task</h4>
+<p>Asynchronous programming, in practice, is often seen as a complementary approach to operating-system-thread-based concurrency. Imagine you would be writing a function to download a couple of websites, using a library <code>fetch</code> function. In the simplest approach, you could start with a sequential implementation like:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">fn</span> download_two() <span class="op">-&gt;</span> (Data<span class="op">,</span> Data) <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>    <span class="kw">let</span> site_1 <span class="op">=</span> fetch(<span class="st">&quot;http://a.com&quot;</span>)<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="kw">let</span> site_2 <span class="op">=</span> fetch(<span class="st">&quot;http://b.com&quot;</span>)<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    (site_1<span class="op">,</span> site_2)</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="op">}</span></span></code></pre></div>
+<p>Because synchronous system calls are blocking while waiting for I/O operations, the simplest approach to introduce concurrency is to spawn multiple operating system threads, each waiting for its I/O operation to finish:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">fn</span> download_two() <span class="op">-&gt;</span> (Data<span class="op">,</span> Data) <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>    <span class="kw">let</span> site_1 <span class="op">=</span> <span class="pp">thread::</span>spawn(<span class="op">||</span> fetch(<span class="st">&quot;http://a.com&quot;</span>))<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="kw">let</span> site_2 <span class="op">=</span> <span class="pp">thread::</span>spawn(<span class="op">||</span> fetch(<span class="st">&quot;http://b.com&quot;</span>))<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>    (site_1<span class="op">.</span>join()<span class="op">.</span>unwrap()<span class="op">,</span> site_2<span class="op">.</span>join()<span class="op">.</span>unwrap())</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="op">}</span></span></code></pre></div>
+<p>However, this approach is quickly limited by the overhead of memory for each thread state and <em>context switching</em> between them. You may be aware, for instance, from Network Programming classes, that an efficient approach is to use non-blocking <em>asynchronous</em> I/O operations. This approach, however, is complex to modularize. A naive implementation could look like:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">fn</span> download_two() <span class="op">-&gt;</span> (Data<span class="op">,</span> Data) <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>    <span class="kw">let</span> site_1<span class="op">:</span> AsyncDownloader<span class="op">&lt;</span>Data<span class="op">&gt;</span> <span class="op">=</span> fetch_async(<span class="st">&quot;http://a.com&quot;</span>)<span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="kw">let</span> site_2<span class="op">:</span> AsyncDownloader<span class="op">&lt;</span>Data<span class="op">&gt;</span> <span class="op">=</span> fetch_async(<span class="st">&quot;http://b.com&quot;</span>)<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="kw">while</span> <span class="kw">let</span> Ready(fd) <span class="op">=</span> <span class="pp">libc::</span>poll([site_1<span class="op">.</span>get_fd()<span class="op">,</span> site_2<span class="op">.</span>get_fd()]) <span class="op">{</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>        <span class="co">// Dispatch the event to downloader structs. ...</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a>        <span class="kw">if</span> fd <span class="op">==</span> site_1<span class="op">.</span>get_fd() <span class="op">{</span>site_1<span class="op">.</span>progress()<span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>site_2<span class="op">.</span>progress()<span class="op">};</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>    <span class="op">}</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>    (site_1<span class="op">.</span>join()<span class="op">,</span> site_2<span class="op">.</span>join())</span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="op">}</span></span></code></pre></div>
+<p>Apart from other issues in the code above, one stands out: introduction of the event loop to the function both obfuscate its flow a prevents further reuse as asynchronous, e.g., to implement <code>download_four</code>. Therefore, it is clear proper modularization of the code above requires an asynchronous framework or even a paradigm. Ideally, we would like to simply write code like:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">async</span> <span class="kw">fn</span> download_two() <span class="op">-&gt;</span> (Data<span class="op">,</span> Data) <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="kw">let</span> site_1 <span class="op">=</span> fetch_async(<span class="st">&quot;http://a.com&quot;</span>)<span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="kw">let</span> site_2 <span class="op">=</span> fetch_async(<span class="st">&quot;http://b.com&quot;</span>)<span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="pp">join!</span>(site_1<span class="op">,</span> site_2)</span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="op">}</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="kw">async</span> <span class="kw">fn</span> download_four() <span class="op">-&gt;</span> ((Data<span class="op">,</span> Data)<span class="op">,</span> (Data<span class="op">,</span> Data)) <span class="op">{</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="pp">join!</span>(download_two()<span class="op">,</span> download_two())</span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="op">}</span></span></code></pre></div>
+<p>In the code above, <code>download_four</code> preserves the ability to download four sites concurrently. Where did the event loop go? It is extracted to an <em>executor</em> for driving the computation, as discussed later. The <code>fetch_async</code> needs to express (partial) computation, as could be done by the above <code>AsyncDownloader</code> struct. This function could look in pseudocode like this:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">async</span> <span class="kw">fn</span> fetch_async(url<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> Data <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>    <span class="kw">let</span> <span class="kw">mut</span> response <span class="op">=</span> <span class="pp">sys::</span>url_get_async(url)<span class="op">.</span><span class="kw">await</span><span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="kw">if</span> <span class="kw">let</span> Redirect(new_url) <span class="op">=</span> response <span class="op">{</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>        response <span class="op">=</span> fetch_async(new_url)<span class="op">.</span><span class="kw">await</span><span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="op">};</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>    response<span class="op">.</span>parse() <span class="co">// synchronous</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="op">}</span></span></code></pre></div>
+<p>Fully-fledged examples of downloading multiple websites using asynchronous programming in Rust are provided in <code>examples/asychronous.rs</code>. Unless you are familiar with this programming paradigm, we suggest only browsing through these examples initially. Finally, remember that the <em>paradigm</em> is more general than merely supporting I/O-bound tasks — in fact, the System in the Assignment doesn’t do any I/O.</p>
+<p>Below, we discuss the details of asynchronous programming in Rust step-by-step.</p>
+<h3 id="asynchronous-programming-in-rust">Asynchronous programming in Rust</h3>
+<p>In Rust, asynchronous code is based on the <strong><code>Future</code></strong> trait:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">pub</span> <span class="kw">trait</span> <span class="bu">Future</span> <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>    <span class="kw">type</span> Output<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="kw">fn</span> poll(<span class="kw">self</span><span class="op">:</span> Pin<span class="op">&lt;&amp;</span><span class="kw">mut</span> <span class="dt">Self</span><span class="op">&gt;,</span> cx<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> Context) <span class="op">-&gt;</span> Poll<span class="op">&lt;</span><span class="dt">Self</span><span class="pp">::</span>Output<span class="op">&gt;;</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="op">}</span></span></code></pre></div>
+<p>We may look at this trait twofold: 1. The trait represents a <code>value: Output</code> that will be available in the future. 2. The trait represents an asynchronous <em>computation</em> that can ultimately produce a <code>value: Output</code>.</p>
+<p>Every call to the <code>poll()</code> method tries to make progress on the computation and returns its status: - <code>Poll::Pending</code>, when the computation is not yet finished and <code>poll()</code> should be called again, - <code>Poll::Ready(Output)</code> otherwise.</p>
+<p>You typically do not call this method directly, but it is called by an <em>executor driving the Future</em>. Of course, implementing an executor of asynchronous code as a simple loop, which repeatedly polls futures would be extremely inefficient. For this reason, <code>Context</code> is passed to a <code>poll()</code> call. It contains a special <code>Waker</code> type, which is used to notify the executor when some event happens so that the future can make progress: for instance, data has been read from disk.</p>
+<p>The <code>poll()</code> method requires also a reference to <code>Self</code>, but wrapped in a <code>Pin</code> struct. <code>Pin</code> stands for <strong>pinned pointer</strong> and prevents the pointed value from being moved in memory. (Unless it implements the <code>Unpin</code> trait, which marks types that can be moved safely.) Pinning futures makes it safe to create references to values inside asynchronous code. Internally in Rust, asynchronous code is backed by an associated state machine holding intermittent state. Whenever the future makes progress, a transition to its next state occurs. You may also think about it in terms of coroutines, which may interleave execution with another code:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">let</span> <span class="kw">mut</span> something <span class="op">=</span> <span class="dv">42</span><span class="op">;</span> <span class="co">// A value on the stack frame</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">let</span> x <span class="op">=</span> <span class="op">&amp;</span><span class="kw">mut</span> something<span class="op">;</span> <span class="co">// And a reference to it</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="kw">yield</span> <span class="co">// the control flow returns up the stack and will return later</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="op">*</span>x <span class="op">=</span> <span class="dv">7</span><span class="op">;</span> <span class="co">// The pointer inside `x` would be invalid if the stack relocated.</span></span></code></pre></div>
+<p>Futures can be easily created and manipulated using the <a href="https://crates.io/crates/futures">futures</a> crate. For example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">fn</span> simple_future() <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>    <span class="co">// Crate a future that is immediately ready with a value,</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="co">// which is then transformed:</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="kw">let</span> future <span class="op">=</span> <span class="pp">futures::future::</span>ready(<span class="dv">7</span>)<span class="op">.</span>map(<span class="op">|</span>x<span class="op">|</span> x <span class="op">*</span> <span class="dv">2</span>)<span class="op">;</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a>    <span class="co">// Run the future to completion in the current thread:</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>    <span class="kw">let</span> result <span class="op">=</span> <span class="pp">futures::executor::</span>block_on(future)<span class="op">;</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a></span>
+<span id="cb8-9"><a href="#cb8-9"></a>    <span class="pp">println!</span>(<span class="st">&quot;Result of the simple future: {}&quot;</span><span class="op">,</span> result)<span class="op">;</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="op">}</span></span></code></pre></div>
+<p>Futures can be combined and joined into new futures to implement more complex asynchronous computations (see <code>examples/futures.rs</code> for examples). However, creating complex computations this way is cumbersome and has several limitations.</p>
+<p>Instead of combining futures functionally, we can ask the compiler to transform imperative-style code into a future. We do this with an <code>async</code> block:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb9-1"><a href="#cb9-1"></a><span class="co">// The return value is the same as in a typical block expression.</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="co">// It has an anonymous type as below:</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="kw">let</span> future<span class="co">/*: impl std::future::Future&lt;Output=i32&gt; + Sized */</span> <span class="op">=</span> <span class="kw">async</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="pp">println!</span>(<span class="st">&quot;I&#39;m an async block!&quot;</span>)<span class="op">;</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>    <span class="dv">42</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="op">};</span></span></code></pre></div>
+<p>The same transformation may be applied to a whole function. To create an asynchronous function, the <strong><code>async</code></strong> keyword is required. The function’s return type becomes a future. For example:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">async</span> <span class="kw">fn</span> async_function() <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>    <span class="pp">println!</span>(<span class="st">&quot;I&#39;m an async function.&quot;</span>)<span class="op">;</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="op">}</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co">// This is essentially another way to write:</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="kw">fn</span> async_function() <span class="op">-&gt;</span> <span class="kw">impl</span> <span class="pp">std::future::</span><span class="bu">Future</span><span class="op">&lt;</span>Output <span class="op">=</span> ()<span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>    <span class="kw">async</span> <span class="op">{</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>        <span class="pp">println!</span>(<span class="st">&quot;I&#39;m an async function.&quot;</span>)<span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a>    <span class="op">}</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="op">}</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="kw">fn</span> run_async_function() <span class="op">{</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a>    <span class="co">// Create a future by calling an asynchronous function:</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a>    <span class="kw">let</span> future <span class="op">=</span> async_function()<span class="op">;</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a></span>
+<span id="cb10-15"><a href="#cb10-15"></a>    <span class="co">// Run the future to completion in the current thread:</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a>    <span class="pp">futures::executor::</span>block_on(future)<span class="op">;</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a><span class="op">}</span></span></code></pre></div>
+<p>Futures are the most useful, of course, when there are multiple asynchronous computations that can be executed concurrently, and we can express complex control flow. Within asynchronous code we may use the <code>await</code> expression to “unwrap” a future into its output. It suspends the current function until the execution of the <code>await</code>ed future is completed and its result is ready. In other words, our auto-generated future delegates <code>Future::pool</code> to the <code>await</code>ed one until it completes. When the current function is blocked, the asynchronous executor tries to run another one. For instance:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">async</span> <span class="kw">fn</span> action1_step1() <span class="op">-&gt;</span> <span class="dt">String</span> <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>    <span class="dt">String</span><span class="pp">::</span>from(<span class="st">&quot;Step 1 of Action 1&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="op">}</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="kw">async</span> <span class="kw">fn</span> action1_step2(<span class="dt">str</span><span class="op">:</span> <span class="dt">String</span>) <span class="op">{</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>    <span class="pp">println!</span>(<span class="st">&quot;Step 2 of Action 1 follows {}&quot;</span><span class="op">,</span> <span class="dt">str</span>)<span class="op">;</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="op">}</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a></span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="co">// By using `.await` we do not block the thread until each step</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a><span class="co">// is completed. Contrarily, we make it possible to advance</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a><span class="co">// the other action when the futures are not completed:</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a><span class="kw">async</span> <span class="kw">fn</span> action1() <span class="op">{</span></span>
+<span id="cb11-13"><a href="#cb11-13"></a>    <span class="co">// Run the first step and wait until it completes:</span></span>
+<span id="cb11-14"><a href="#cb11-14"></a>    <span class="kw">let</span> partial_result <span class="op">=</span> action1_step1()<span class="op">.</span><span class="kw">await</span><span class="op">;</span></span>
+<span id="cb11-15"><a href="#cb11-15"></a></span>
+<span id="cb11-16"><a href="#cb11-16"></a>    <span class="co">// Run the second step (using the result of the first step)</span></span>
+<span id="cb11-17"><a href="#cb11-17"></a>    <span class="co">// and wait until it completes:</span></span>
+<span id="cb11-18"><a href="#cb11-18"></a>    action1_step2(partial_result)<span class="op">.</span><span class="kw">await</span><span class="op">;</span></span>
+<span id="cb11-19"><a href="#cb11-19"></a><span class="op">}</span></span>
+<span id="cb11-20"><a href="#cb11-20"></a></span>
+<span id="cb11-21"><a href="#cb11-21"></a><span class="kw">async</span> <span class="kw">fn</span> action2() <span class="op">{</span> <span class="co">/* ... */</span> <span class="op">}</span></span>
+<span id="cb11-22"><a href="#cb11-22"></a></span>
+<span id="cb11-23"><a href="#cb11-23"></a><span class="kw">fn</span> run_asynchronous_actions() <span class="op">{</span></span>
+<span id="cb11-24"><a href="#cb11-24"></a>    <span class="co">// Join two futures into a new future:</span></span>
+<span id="cb11-25"><a href="#cb11-25"></a>    <span class="kw">let</span> future <span class="op">=</span> <span class="pp">futures::future::</span>join(action1()<span class="op">,</span> action2())<span class="op">;</span></span>
+<span id="cb11-26"><a href="#cb11-26"></a></span>
+<span id="cb11-27"><a href="#cb11-27"></a>    <span class="co">// Run the future to completion on the current thread:</span></span>
+<span id="cb11-28"><a href="#cb11-28"></a>    <span class="pp">futures::executor::</span>block_on(future)<span class="op">;</span></span>
+<span id="cb11-29"><a href="#cb11-29"></a><span class="op">}</span></span></code></pre></div>
+<p>Full versions of the above examples are provided in <code>examples/futures.rs</code></p>
+<h4 id="tokio">Tokio</h4>
+<p>Although the <code>Future</code> trait and the <code>async/await</code> syntax are a part of the Rust standard library, as of now there is no standard asynchronous executor. This is visible in the previous examples, where an executor from the <code>futures</code> crate is used. There are also multiple other crates that implement asynchronous executors. During this course, we will use the <strong><a href="https://crates.io/crates/tokio">tokio</a></strong> crate, which provides a full-featured asynchronous runtime, implementing:</p>
+<ul>
+<li>Tools for working with asynchronous tasks: synchronization primitives, channels, sleeps, timeouts, …</li>
+<li>APIs for asynchronous IO: TCP/UDP sockets, filesystem operations, …</li>
+<li>Runtimes for executing asynchronous code (a runtime is, simplifying, an advanced asynchronous executor).</li>
+</ul>
+<p>When using Tokio, one usually does not create and manage futures oneself, as in the previous examples. Instead, <strong>tasks</strong> are used. They are non-blocking units of execution to be executed asynchronously. Tasks are created by <strong>spawning</strong> futures, which makes them being executed asynchronously by a runtime. Tokio provides two types of runtime. A <strong>single-threaded runtime</strong> executes all tasks within the current thread. A <strong>multi-threaded runtime</strong> executes tasks on an automatically created thread pool. In other words, Tokio tasks implement a concept called <em>asynchronous green-threads</em>. A correctly coded program can be run on both runtimes without requiring any changes other than selecting the other type of the runtime. An example follows:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">async</span> <span class="kw">fn</span> async_function() <span class="op">{</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>    <span class="pp">println!</span>(<span class="st">&quot;I am a task created from the async function.&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="op">}</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="co">// The `#[tokio::main]` macro creates a runtime, and</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="co">// calls `block_on()` passing to it the function as a future:</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="at">#[</span><span class="pp">tokio::</span>main<span class="at">]</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="kw">async</span> <span class="kw">fn</span> main_task() <span class="op">{</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>    <span class="pp">println!</span>(<span class="st">&quot;I am the main task.&quot;</span>)<span class="op">;</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a></span>
+<span id="cb12-11"><a href="#cb12-11"></a>    <span class="kw">let</span> task1 <span class="op">=</span> <span class="pp">tokio::</span>spawn(<span class="kw">async</span> <span class="op">{</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a>        <span class="pp">println!</span>(<span class="st">&quot;I am a new task created from the async block.&quot;</span>)<span class="op">;</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a>    <span class="op">}</span>)<span class="op">;</span></span>
+<span id="cb12-14"><a href="#cb12-14"></a></span>
+<span id="cb12-15"><a href="#cb12-15"></a>    <span class="kw">let</span> task2 <span class="op">=</span> <span class="pp">tokio::</span>spawn(async_function())<span class="op">;</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a></span>
+<span id="cb12-17"><a href="#cb12-17"></a>    <span class="kw">let</span> task3 <span class="op">=</span> <span class="pp">tokio::</span>spawn(<span class="kw">async</span> <span class="op">{</span></span>
+<span id="cb12-18"><a href="#cb12-18"></a>        <span class="pp">println!</span>(<span class="st">&quot;I am a new task.&quot;</span>)<span class="op">;</span></span>
+<span id="cb12-19"><a href="#cb12-19"></a>        <span class="pp">tokio::</span>spawn(<span class="kw">async</span> <span class="op">{</span></span>
+<span id="cb12-20"><a href="#cb12-20"></a>            <span class="pp">println!</span>(<span class="st">&quot;I am a new task spawned by the new task.&quot;</span>)<span class="op">;</span></span>
+<span id="cb12-21"><a href="#cb12-21"></a>        <span class="op">}</span>)<span class="op">;</span></span>
+<span id="cb12-22"><a href="#cb12-22"></a>    <span class="op">}</span>)<span class="op">;</span></span>
+<span id="cb12-23"><a href="#cb12-23"></a></span>
+<span id="cb12-24"><a href="#cb12-24"></a>    <span class="co">// All above tasks are being now executed asynchronously.</span></span>
+<span id="cb12-25"><a href="#cb12-25"></a></span>
+<span id="cb12-26"><a href="#cb12-26"></a>    <span class="co">// Spawning a task returns a handle, which allows of waiting</span></span>
+<span id="cb12-27"><a href="#cb12-27"></a>    <span class="co">// for its completion:</span></span>
+<span id="cb12-28"><a href="#cb12-28"></a>    task1<span class="op">.</span><span class="kw">await</span><span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb12-29"><a href="#cb12-29"></a>    task2<span class="op">.</span><span class="kw">await</span><span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb12-30"><a href="#cb12-30"></a>    task3<span class="op">.</span><span class="kw">await</span><span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb12-31"><a href="#cb12-31"></a><span class="op">}</span></span>
+<span id="cb12-32"><a href="#cb12-32"></a></span>
+<span id="cb12-33"><a href="#cb12-33"></a><span class="kw">fn</span> tokio_example() <span class="op">{</span></span>
+<span id="cb12-34"><a href="#cb12-34"></a>    <span class="co">// Although `main_task()` is prefixed with `async`, the below</span></span>
+<span id="cb12-35"><a href="#cb12-35"></a>    <span class="co">// call is synchronous. The `#[tokio::main]` macro wraps the</span></span>
+<span id="cb12-36"><a href="#cb12-36"></a>    <span class="co">// asynchronous function with a synchronous initialization</span></span>
+<span id="cb12-37"><a href="#cb12-37"></a>    <span class="co">// of the Tokio runtime, and calls `block_on()` passing</span></span>
+<span id="cb12-38"><a href="#cb12-38"></a>    <span class="co">// the function as a future:</span></span>
+<span id="cb12-39"><a href="#cb12-39"></a>    main_task()<span class="op">;</span></span>
+<span id="cb12-40"><a href="#cb12-40"></a><span class="op">}</span></span></code></pre></div>
+<p>More examples, with a detailed commentary, are provided in <code>examples/tokio.rs</code>.</p>
+<p>Execution of tasks is scheduled (within a single thread or within a thread pool) by the runtime in a manner called <strong>cooperative multitasking</strong>: execution is switched to another task when the current task explicitly yields the execution. It means that one should avoid using blocking calls or writing long synchronous blocks of code (i.e., long parts without <code>.await</code>) and one should spawn new tasks for potentially long-running actions. (In particular <code>println!</code> is a blocking operation.) Otherwise, the gain from using asynchronous programming is greatly diminished. In practice, Tokio should be able to handle any number of tasks.</p>
+<h4 id="cancellation-safety">Cancellation safety</h4>
+<p>The execution of a future can be cancelled rather trivially: by simply dropping the future when there is no <code>poll</code> on it in progress. While this is always safe in the sense of Rust’s safety guarantees, not all futures guarantee a correct behavior if they are cancelled. For example, cancelling a future that acquired a semaphore could cause a deadlock by never releasing the semaphore.</p>
+<h4 id="asynchronous-channels">Asynchronous channels</h4>
+<p>Tokio provides asynchronous channels in <code>tokio::sync::mpsc</code>. The usage of these channels is similar to the usage of <code>crossbeam</code>. An example is provided in <code>examples/tokio_channels.rs</code>.</p>
+<h4 id="traits-with-asynchronous-methods">Traits with asynchronous methods</h4>
+<p>Rust supports asynchronous functions in traits, however, with some limitations. One of the remaining ones is that these traits are not object safe (i.e., you cannot use <code>dyn Trait</code>). This issue is shared with traits using <code>impl Trait</code> in the return position (RPITIT):</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">trait</span> Rpitit <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>    <span class="kw">fn</span> debugable(<span class="op">&amp;</span><span class="kw">self</span>) <span class="op">-&gt;</span> <span class="kw">impl</span> <span class="bu">Future</span><span class="op">&lt;</span>Output<span class="op">=??&gt;;</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="op">}</span></span></code></pre></div>
+<p>You can read more about both historical and remaining issues in <a href="https://smallcultfollowing.com/babysteps/blog/2019/10/26/async-fn-in-traits-are-hard/">this blog post</a> (complications #1 &amp; #2 are resolved).</p>
+<p>Fortunately, there is the <a href="https://crates.io/crates/async-trait">async-trait</a> crate, which provides the <code>#[async_trait::async_trait]</code> macro that makes asynchronous functions always return a concrete type: a heap-allocated trait objects. The downside is that this solution requires a heap allocation and dynamic dispatch. An example is provided in <code>examples/async_trait.rs</code>.</p>
+<h4 id="asynchronous-closures">Asynchronous closures</h4>
+<p>Using asynchronous callbacks, especially closures, can be a little tricky (in Rust 1.82).</p>
+<p>In the case of storing asynchronous closures as callbacks that should be run when some action is completed, a concrete type is required. An asynchronous closure is a closure that returns a future. This future implements the trait <code>Future&lt;Output = Ret&gt;</code>, where <code>Ret</code> is the type obtained by <code>await</code>ing the future. Its exact type is not known, so a trait object of type <code>Box&lt;dyn Future&lt;Output = Ret&gt;&gt;</code> is necessary. Moreover, a future can be self-referential but <code>Box</code> does not guarantee that it will not be moved. Therefore, <code>Pin</code> is also needed, and the return type of the closure becomes <code>Pin&lt;Box&lt;dyn Future&lt;Output = Ret&gt;&gt;&gt;</code>. The closure itself also has to be a trait object, so the complete type of an asynchronous <em>call-once</em> closure, which accepts a parameter of type <code>Arg</code> is:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb14-1"><a href="#cb14-1"></a><span class="dt">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="bu">FnOnce</span>(Arg) <span class="op">-&gt;</span> Pin<span class="op">&lt;</span><span class="dt">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="bu">Future</span><span class="op">&lt;</span>Output <span class="op">=</span> Ret<span class="op">&gt;&gt;&gt;&gt;</span></span></code></pre></div>
+<p>Such a closure can be created as follows:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">let</span> closure <span class="op">=</span> <span class="dt">Box</span><span class="pp">::</span>new(<span class="kw">move</span> <span class="op">|</span>arg<span class="op">|</span> <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>    <span class="dt">Box</span><span class="pp">::</span>pin(<span class="kw">async</span> <span class="kw">move</span> <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>        <span class="co">/* ... */</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>    <span class="op">}</span>)</span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="op">}</span>)<span class="op">;</span></span></code></pre></div>
+<p>The first <code>move</code> is needed to transfer the ownership of any captured value to the closure, and the second <code>move</code> is needed to transfer the ownership to the returned future. A full example is provided in <code>examples/async_closure.rs</code>.</p>
+<p>Asynchronous closures that may be called multiple times (<code>Fn</code> and <code>FnMut</code>) are currently very limited in stable Rust. This is because <code>Fn</code> and <code>FnMut</code> cannot express returning a future that contains a reference to the closure. This can happen if we remove the second <code>move</code> in the snippet above. You can read more about these issues in the <a href="https://rust-lang.github.io/rfcs/3668-async-closures.html">Async Closures RFC</a> and in <a href="https://hackmd.io/@compiler-errors/async-closures#fnref8">this blog post</a>.</p>
+<h2 id="additional-homework">Additional Homework</h2>
+<p>If you wish to read in depth about asynchronous code in Rust, we recommend the <a href="https://rust-lang.github.io/async-book/">Asynchronous Programming in Rust</a> book. Some students also recommended the <a href="https://youtu.be/ThjvMReOXYM">video tutorial</a> by Jon Gjengset, and his <a href="https://youtube.com/playlist?list=PLqbS7AVVErFiWDOAVrPt7aYmnuuOLYvOa">Crust of Rust</a> series in general if you want to learn even more about Rust.</p>
+<p>If you want to learn how the asynchronous computing works in Rust, we recommend reading the <a href="https://os.phil-opp.com/async-await/">Async/Await</a> blog entry by Philipp Oppermann. The entry demonstrates also how asynchronous programming can be used to handle keyboard interrupts, and how to implement a basic asynchronous executor.</p>
+<hr />
+<p>Authors: F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski, M. Matraszek.</p>
+</section>
+</body>
+</html>
