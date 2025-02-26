@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski" />
+  <title>Distributed Systems Lab 12</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+body
+{
+font-family: Helvetica, sans;
+background-color: #f0f0f0;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+}
+section.content {
+width: 19cm;
+font-size: 12pt;
+text-align: justify;
+margin-left: auto;
+margin-right: auto;
+margin-top: 20pt;
+background-color: white;
+padding: 20pt;
+}
+h1
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: center;
+}
+h2
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+border-bottom: 1px solid #808080;
+}
+h3
+{
+font-size: x-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h1 + h3 {
+text-align: center;
+}
+h4
+{
+font-size: large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h5
+{
+font-size: medium;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h6
+{
+font-size: medium;
+text-decoration: none;
+font-weight: normal;
+text-align: left;
+}
+table
+{
+border-width: 1px;
+border-spacing: 0px;
+border-style: solid;
+border-color: #808080;
+border-collapse: collapse;
+font-family: Times, serif;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+background-color: white;
+}
+td
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+background-color: white;
+}
+th
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+font-weight: bold;
+background-color: #f0f0f0;
+}
+a:link {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:visited {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:hover {
+text-decoration: underline;
+font-weight: normal;
+}
+pre.sourceCode {
+font-size: 90%;
+}
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="distributed-systems-lab-12" class="content">
+<h1>Distributed Systems Lab 12</h1>
+<h3 id="eventual-consistency">Eventual consistency</h3>
+<p>During the previous labs, we presented Raft, a distributed consensus algorithm, which can be used to guarantee sequential consistency across all processes of a distributed system. This lab discusses how a weaker form of consistency, <strong>eventual consistency</strong>, can be implemented in a distributed system, employing as a running example a distributed text editor. We will use files contained in <a href="./dslab12.tgz">this package</a>, which you should download and extract locally.</p>
+<h2 id="learning-section">Learning section</h2>
+<h3 id="eventual-consistency-1">Eventual consistency</h3>
+<p>Ensuring sequential consistency across a distributed system boils down to employing some consensus algorithm, which usually involves introducing a significant overhead on the solution. However, not all systems require such a strong consistency requirement to operate correctly. For instance, consider a distributed text editor, which enables users to independently and simultaneously edit some shared text. Usually, it is not required that at any time all users see exactly the same text. On the contrary, edits can be displayed to different users in various orders. It is only required that all users will be displayed the same text when they all stop typing. In other words, the distributed text editor shall guarantee <strong>eventual consistency</strong>.</p>
+<p>There are two approaches to state synchronization between processes of such a system. In the <strong>state-based</strong> approach processes exchange their local states, converging eventually to the same final state across the system. In the <strong>op-based</strong> approach all processes start with the same local state and then, by exchanging operations to execute, they eventually converge to the same final state too. During this lab, we will discuss the latter approach, employing the distributed text editor as a running example.</p>
+<h3 id="op-based-distributed-text-editor-idea">Op-based distributed text editor: Idea</h3>
+<p>In the considered distributed text editor, each process stores locally a copy of the edited text. All processes start with the same initial text and then they independently update their texts by applying operations issued by themselves and by other processes. We will consider two types of operations:</p>
+<ol type="1">
+<li><p>inserting a character at a position:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource numberLines"><code class="sourceCode"><span id="cb1-1"><a href="#cb1-1"></a>insert(position, character, issuing process&#39;s rank)</span></code></pre></div></li>
+<li><p>deleting a character at a position:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource numberLines"><code class="sourceCode"><span id="cb2-1"><a href="#cb2-1"></a>delete(position, issuing process&#39;s rank)</span></code></pre></div></li>
+</ol>
+<p>Operations are issued with respect to the current text of the issuing process.</p>
+<p>From a global perspective, operations in the system constitute a partially ordered set: operation <em>A</em> is <em>newer</em> than operation <em>B</em> if some process issued <em>A</em> after it had applied <em>B</em> to its text (<em>A has already seen effects of B</em>); operation <em>A</em> is <em>older</em> than operation <em>B</em> if some process had issued <em>A</em> before it issued <em>B</em> (<em>B has already seen the effects of A</em>); operation <em>A</em> is <em>concurrent</em> with operation <em>B</em> if it is neither newer nor older than <em>B</em> (<em>A has not seen the effects of B, B has not seen the effects of A</em> as can happen when two processes issue these operations concurrently).</p>
+<p>When some process issues an operation, it applies the operation to its text and broadcasts the operation to the other processes. The processes, however, cannot just apply the operation as they receive it: the operations as defined previously are not commutative and thus applying them in an arbitrary order would not guarantee convergence to the same texts. Therefore, at least two following conditions have to be met.</p>
+<p>First, the received operation has to be applied only when all operations older than it have already been applied, as otherwise the partial order would not be preserved. If some older operations have not been already received and applied by the process, the process shall store the operation aside and apply it later when it is possible.</p>
+<p>Second, the operation has to be transformed with respect to the already applied operations it is concurrent with. The goal of the <strong>transformations</strong> is to exploit commutativity: if two operations are concurrent, different processes may execute them in different orders, but to reach eventual consistency, these executions have to yield the same texts nevertheless. This can be achieved by transformation rules defined, for instance, as follows:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource text numberLines"><code class="sourceCode"><span id="cb3-1"><a href="#cb3-1"></a>Transform insert(p1, c1, r1) wrt. insert(p2, c2, r2) :-</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  if p1 &lt; p2: insert(p1, c1, r1)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  if p1 = p2 and r1 &lt; r2: insert(p1, c1, r1)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  else: insert(p1 + 1, c1, r1)</span></code></pre></div>
+<p>Transformation rules for the remaining combinations of operations can be defined analogously. This way, when there are two concurrent operations, <em>A</em> and <em>B</em>, in the system, applying first <em>A</em> and then <em>B</em> transformed with respect to <em>A</em> yields the same eventual text as applying first <em>B</em> and then <em>A</em> transformed with respect to <em>B</em>.</p>
+<p>To facilitate discovering which transformations have to be applied to an operation, each process stores locally a log of operations it has already applied to its text. When a process receives a new operation issued by another process and it has already applied all operations older than this one, it examines its log (the least recent operation first) and transforms the received operation with respect to all operations from its log that are concurrent with the operation. Then, it appends the transformed operation to the log and applies it to the text.</p>
+<p>A naive approach to discovering which operations are older than and which are concurrent with a new operation would be to send and store with each operation a log of operations applied before this one. However, the problem can be solved in a much more performant way by using <strong>vector clocks</strong>.</p>
+<h4 id="vector-clock">Vector clock</h4>
+<p>Vector clocks were discussed at length during lectures. As a reminder, a vector clock is an array-like structure that stores independent counters. A vector clock can be used by a process of the distributed text editor to track operations applied to the text: the <em>i</em>-th counter of the vector clock counts applied operations issued by the <em>i</em>-th process of the system (i.e., the process with rank <em>i</em>). After a process applies an operation (issued by itself or by another process), it increments the corresponding counter in its vector clock. The operation is appended to the log together with the current state of the vector clock. When the process broadcasts the operation, the associated vector clock state is attached. This way, a process that receives the operation can compare this vector clock with the vector clocks of operations stored in its log:</p>
+<ul>
+<li>An operation <em>A</em> is considered older than or equal to an operation <em>B</em> if all counters of <em>A</em>’s vector clock are smaller than or equal to the corresponding counters of <em>B</em>’s vector clock.</li>
+<li>If neither operation is considered older than or equal to the other, <em>A</em> and <em>B</em> are considered concurrent.</li>
+</ul>
+<p>Vector clocks are also used to verify if a process has already applied all operations older than the received one: the process’s current vector clock has to have all counters equal to or greater than the respective counters of the received operation’s vector clock, except for the counter corresponding to the issuing process: it has to be smaller precisely by one in the process’s vector clock.</p>
+<h4 id="broadcast-guarantees">Broadcast guarantees</h4>
+<p>The overall correctness of the op-based eventual consistency algorithm depends also on guarantees provided by the employed broadcast primitive and may require introducing into the algorithm additional features depending on how the actual message delivery performs.</p>
+<p>For instance, if operations are not guaranteed to be delivered in the order they are sent, processes should store aside operations which cannot be applied already when they are received and should try to apply them later. If operations are not guaranteed to be delivered to each process exactly once, processes should first verify that they have not already applied them (unless operations are idempotent), and should implement some retransmission mechanisms if message delivery can fail. And so forth.</p>
+<h4 id="example">Example</h4>
+<p>An example activity of an op-based distributed text editor is illustrated in a <a href="example.svg">diagram</a>. The system consists of two processes with ranks <code>0</code> and <code>1</code>. Both processes start with empty texts, zeroed vector clocks, and empty logs.</p>
+<p>First, the process with rank <code>0</code> issues the <code>insert(0, &#39;i&#39;, 0)</code> operation, applies it to its text, increments its vector clock, appends the operation to its log, and broadcasts the operation with the associated vector clock to the other process. The other process has an empty log, so it just applies the operation to its text as is, increments its vector clock, and appends the operation to its log. Both process store now texts <code>&quot;i&quot;</code>.</p>
+<p>Then, the process with rank <code>0</code> issues the <code>insert(0, &#39;H&#39;, 0)</code> operation, applies the operation to its text (obtaining <code>&quot;Hi&quot;</code>), increments its vector clock, appends the operation to its log, and broadcast the operation to the other process. Concurrently, the process with rank <code>1</code> issues the <code>insert(1, &#39;!&#39;, 1)</code> operation, applies the operation to its text (obtaining <code>&quot;i!&quot;</code>), increments its vector clock, appends the operation to its log, and broadcasts the operation to the other process.</p>
+<p>When the process with rank <code>0</code> receives the <code>insert(1, &#39;!&#39;, 1) [1, 1]</code> operation, it examines its log by comparing the received vector clock with vector clocks of operations stored in the log: the new operation is newer than the first stored operation (so no transformation is needed), but concurrent with the second stored operation (so a transformation is needed). It transforms the new operation with respect to the second stored operation and obtains <code>insert(2, &#39;!&#39;, 1)</code>. The process applies the transformed operation to its text, increments its vector clock, and appends the operation to its log.</p>
+<p>By symmetry, when the process with rank <code>1</code> receives the <code>insert(0, &#39;H&#39;, 0) [2, 0]</code> operation, it examines its log by comparing the received vector clock with vector clocks of operations stored in the log: the new operation is newer than the first stored operation (so no transformation is needed), but concurrent with the second stored operation (so a transformation is needed). It transforms the new operation with respect to the second stored operation and obtains <code>insert(0, &#39;H&#39;, 0)</code>. The process applies the transformed operation to its text, increments its vector clock, and appends the operation to its log.</p>
+<p>Eventually, both processes obtain the same text: <code>&quot;Hi!&quot;</code>.</p>
+<h3 id="op-based-distributed-text-editor-disclaimer">Op-based distributed text editor: Disclaimer</h3>
+<p>The above description, however, illustrates only an idea how eventual consistency can be achieved in a distributed text editor: the presented algorithm includes a few shortcomings. For example, it does not handle situations when there are two causally-related operations that are both concurrent with a third operation.</p>
+<p>Nevertheless, the algorithm can be extended to truly guarantee eventual consistency by examining the log and applying transformations in a more sophisticated way, depending on additional guarantees one wants to provide (see, for instance, <a href="https://dl.acm.org/doi/10.1145/240080.240305">this paper</a>).</p>
+<h2 id="small-assignment">Small Assignment</h2>
+<p>Your task is to implement a distributed text editor. However, given that an algorithm that guarantees truly eventual consistency is too intricate for a Small Assignment, you are to implement the algorithm presented hitherto but modified so as to guarantee text convergence through process synchronization.</p>
+<h3 id="algorithm-for-small-assignment">Algorithm for Small Assignment</h3>
+<p>Processes operate in implicit rounds. At the beginning of a new round, each process issues its operation (with respect to its current text, that is, the text resulting from the previous round), appends the operation to the log, applies it to the text, and broadcasts to other processes. Then, it waits for operations from other processes and handles them (i.e., transforms, appends to the log, and applies them to the text). The round ends when the process receives operations from all other processes. When the process receives an operation from the next round (every process manages the rounds independently, so some may already start the next round and broadcast its next operation), the operation is not processed until the next round. Operations within a round are always processed in the order they are received.</p>
+<p>When at the beginning of a round a process does not have an operation to be issued, it waits for the next event. If the event is a user’s request of a new edit, then the process continues with this operation. If it is a reception of some other process’s operation, the process internally issues itself a <code>NOP</code> operation, handles it, and then continues processing the received operation. Effectively, an operation issued by the process itself is always the first operation appended to its log in each round.</p>
+<p>This way, in every round, each process issues exactly one operation. The operation is newer than all operations issued in the previous rounds and concurrent with all operations issued by other processes in the same round. Therefore, there is no need to use vector clocks. Moreover, all concurrent operations are issued with respect to the same text.</p>
+<p>The modified algorithm is illustrated in a <a href="example-sa.svg">diagram</a>.</p>
+<h3 id="implementation-specification">Implementation specification</h3>
+<p>The system consists of processes, clients, and a broadcast module.</p>
+<p>The processes manage the exchange and transformations of text operations. There is a constant number of processes in the system, and they are assigned consecutive ranks (starting with rank <code>0</code>). You can assume the processes do not fail.</p>
+<p>Operation transformations shall be implemented as follows:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource text numberLines"><code class="sourceCode"><span id="cb4-1"><a href="#cb4-1"></a>Transform insert(p1, c1, r1) wrt. insert(p2, c2, r2) :-</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  if p1 &lt; p2: insert(p1, c1, r1)</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  if p1 = p2 and r1 &lt; r2: insert(p1, c1, r1)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  else: insert(p1 + 1, c1, r1)</span>
+<span id="cb4-5"><a href="#cb4-5"></a></span>
+<span id="cb4-6"><a href="#cb4-6"></a>Transform delete(p1, r1) wrt. delete(p2, r2) :-</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  if p1 &lt; p2: delete(p1, r1)</span>
+<span id="cb4-8"><a href="#cb4-8"></a>  if p1 = p2: NOP (do not modify text)</span>
+<span id="cb4-9"><a href="#cb4-9"></a>  else: delete(p1 - 1, r1)</span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a>Transform insert(p1, c1, r1) wrt. delete(p2, r2) :-</span>
+<span id="cb4-12"><a href="#cb4-12"></a>  if p1 &lt;= p2: insert(p1, c1, r1)</span>
+<span id="cb4-13"><a href="#cb4-13"></a>  else: insert(p1 - 1, c1, r1)</span>
+<span id="cb4-14"><a href="#cb4-14"></a></span>
+<span id="cb4-15"><a href="#cb4-15"></a>Transform delete(p1, r1) wrt. insert(p2, c2, r2) :-</span>
+<span id="cb4-16"><a href="#cb4-16"></a>  if p1 &lt; p2: delete(p1, r1)</span>
+<span id="cb4-17"><a href="#cb4-17"></a>  else: delete(p1 + 1, r1)</span></code></pre></div>
+<p>In contrast to the text editor described above, the processes do not store texts or issue commands themselves. In the assignment, these activities are done by the clients.</p>
+<p>Each client is coupled with exactly one process. To issue an operation, the client sends an <code>EditRequest</code> message to its process. It can issue multiple edit requests at once. You can assume that the requests are valid edits (with respect to the text as of they are issued). The process shall process requests in the order they are received, introducing them to the system one by one in the first possible rounds. The process sends to its client an <code>Edit</code> message each time the client should apply a new operation to its text (including operations issued by the client itself and the <code>NOP</code> operation). Since the client communicates with its process in an asynchronous way, in each edit request, the client sends also the total number of operations it has applied to its text so far. This way, the process can learn with respect to which state the operation was issued, and transforms the request with respect to operations which were appended to the log later. These transformations shall follow the same transformation rules as concurrent operations, and the edit request shall be assigned a temporary process rank larger than ranks of actual processes (e.g., <code>N+1</code> in a system containing <code>N</code> processes). After the transformations, the requested operation is appended to the log, broadcast, and sent back to the client (which applies it to the text only then).</p>
+<p>To broadcast an operation to other processes, the process shall send an <code>Operation</code> message to the broadcast module. Each message will be eventually delivered to every other process exactly once, and messages from a process will be delivered in the order they were sent by this process. You are not allowed to send messages between processes other than through the broadcast module.</p>
+<p>You shall complete the implementation of the process and necessary data structures provided in the template, following the interfaces and doc comments defined there. Exemplary implementations of the client and the broadcast module are already provided.</p>
+<p>This Small Assignment is worth <strong><span style="color:red">2 points</span></strong>. To run the system you should use the executor system you implemented as the first Large Assignment.</p>
+<h2 id="additional-homework">Additional Homework</h2>
+<p>To learn how to implement true eventual consistency in an op-based distributed text editor we recommend reading the <a href="https://dl.acm.org/doi/10.1145/240080.240305">aforementioned paper</a> by M. Ressel et al.</p>
+<hr />
+<p>Authors: K. Iwanicki, M. Banaszek, W. Ciszewski, M. Matraszek.</p>
+</section>
+</body>
+</html>

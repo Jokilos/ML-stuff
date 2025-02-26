@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski" />
+  <title>Distributed Systems Lab 03</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+body
+{
+font-family: Helvetica, sans;
+background-color: #f0f0f0;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+}
+section.content {
+width: 19cm;
+font-size: 12pt;
+text-align: justify;
+margin-left: auto;
+margin-right: auto;
+margin-top: 20pt;
+background-color: white;
+padding: 20pt;
+}
+h1
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: center;
+}
+h2
+{
+font-size: xx-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+border-bottom: 1px solid #808080;
+}
+h3
+{
+font-size: x-large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h1 + h3 {
+text-align: center;
+}
+h4
+{
+font-size: large;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h5
+{
+font-size: medium;
+text-decoration: none;
+font-weight: bold;
+text-align: left;
+}
+h6
+{
+font-size: medium;
+text-decoration: none;
+font-weight: normal;
+text-align: left;
+}
+table
+{
+border-width: 1px;
+border-spacing: 0px;
+border-style: solid;
+border-color: #808080;
+border-collapse: collapse;
+font-family: Times, serif;
+font-size: 12pt;
+color: black;
+text-decoration: none;
+font-weight: normal;
+background-color: white;
+}
+td
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+background-color: white;
+}
+th
+{
+border-width: 1px;
+border-style: solid;
+border-color: #808080;
+padding: 3pt;
+font-weight: bold;
+background-color: #f0f0f0;
+}
+a:link {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:visited {
+color: blue;
+text-decoration: none;
+font-weight: normal;
+}
+a:hover {
+text-decoration: underline;
+font-weight: normal;
+}
+pre.sourceCode {
+font-size: 90%;
+}
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="distributed-systems-lab-03" class="content">
+<h1>Distributed Systems Lab 03</h1>
+<h3 id="event-driven-shared-nothing-architecture">Event-driven shared-nothing architecture</h3>
+<p>During the previous lab, we presented how to code multi-threaded programs in Rust and discussed how Rust facilitates assuring memory safety and thread safety of multi-threaded programs. This lab presents a relatively efficient and easy-to-implement architecture for distributed computing, and discusses how to implement in Rust its simplified version. We will use files contained in <a href="./dslab03.tgz">this package</a>, which you should download and extract locally.</p>
+<h2 id="learning-section">Learning Section</h2>
+<h3 id="event-driven-shared-nothing-architecture-1">Event-driven shared-nothing architecture</h3>
+<p>The <strong>event-driven shared-nothing architecture</strong> is based on modules. A <strong>module</strong> is a standalone unit that provides particular functionality and operates on some internal data. When some module, <em>A</em> (let us introduce names to simplify the description), requires functionality or data provided by some other module, <em>B</em>, it explicitly sends a <strong>message</strong> to <em>B</em>. <em>B</em> processes the message, executes the requested operation or fetches the required data, and, if necessary, sends back a reply message to <em>A</em>. Importantly, following the <strong>shared-nothing</strong> paradigm, all messages must be self-contained. They cannot reference any data or structures internal to the modules. In particular, when <em>A</em>’s private object, <em>O</em>, is required by <em>B</em>, <em>A</em> should send in the message to <em>B</em> a copy of <em>O</em> (presumably in a serialized form). In other words, a state of a module is always accessed only by this module. As a result, no synchronization between the modules is required when they are accessing their states.</p>
+<p>An actual module can be implemented in many ways, depending on one’s needs. For instance, in a simple system, modules can be implemented as Rust <code>struct</code>s, and their functionalities being executed in multiple threads. The architecture can be also applied to model large-scale systems, in which, for example, modules are implemented as services running on different machines and exchange messages over a network. The shared-nothing paradigm greatly simplifies management and synchronization of the modules and facilitates distribution transparency.</p>
+<p>From the architecture’s perspective, any module is just a set of message handlers that operate on some private data. The messages, in turn, are generated as a result of some events taking place in the system. In particular, any code of the module is executed only in response to a message received by the module. This message, in turn, is also a result of some earlier event, in particular, the initialization of the entire system. This <strong>event-driven</strong> paradigm allows for eliminating any synchronization also within a module itself. More specifically, the module can be modeled as a <strong>monitor</strong>, being designed to process only a single message at a time.</p>
+<p>A drawback of this monitor-based approach to completely eliminate any synchronization is, however, a need to make all operations performed by the module <strong>asynchronous</strong>. In other words, after sending a request message to module <em>B</em>, module <em>A</em> cannot block itself waiting for the reply from <em>B</em> to complete its operation. Instead, it shall suspend the current operation by saving any relevant data (e.g., details of the request) in its private state and start processing another message it receives. When module <em>A</em> finally receives the reply message from <em>B</em>, it shall load necessary data from in its private state (e.g., the details of the request), and complete the operation using the data received in the reply message from <em>B</em>. As a result, the private data of a module usually contain <strong>finite state machines</strong> that represent the operations being performed by the module.</p>
+<h4 id="executor-system">Executor system</h4>
+<p>The described above logical architecture facilitates efficient realizations. One of them, an <strong>executor system</strong>, is a performant physical architecture, well-suited for relatively non-intricate multi-threaded programs (but not only).</p>
+<p>An executor system is based on <strong>executors</strong> that are mapped one-to-one to operating system threads. Modules are assigned to the executors, and each executor can serve multiple modules. However, each module is assigned to exactly one executor, as this simplifies implementing the modules as monitors. The assignment is done when the system boots and does not change throughout the system’s lifetime.</p>
+<p>Each executor has a <strong>queue</strong> to which messages targeting its modules are inserted. The executor operates in a simple infinite loop: (1) removes the first message from the queue, (2) dispatches the message to an appropriate module by executing the module’s handler specified for this message. If executing the handler involves sending a message to another module, the module appends the message at the end of the queue belonging to the executor of the destination module (this operation may require inter-thread communication). Consequently, a message shall contain such information as its source module, its destination module, and the message type (the last information is necessary for the executor to invoke the right handler).</p>
+<p>The executor system decouples operating system threads from modules, as this can improve efficiency. In particular, the number of actual threads can be adjusted to match the number of available CPU cores, rather than to match the number of modules, and thus minimize the overhead due to thread switching. Moreover, little synchronization between the executors (threads) is required, as the only concurrent access occurs when the executors’ queues are accessed, and it can be managed relatively inexpensively. Finally, all executors (threads) are created only at startup. This way problems related to memory management and garbage collection, which are common in multi-threaded applications, are avoided.</p>
+<h3 id="implementing-the-architecture-in-rust">Implementing the architecture in Rust</h3>
+<p>We will learn about fully-fledged asynchronous programming in Rust in the next labs. Now, we’ll focus on implementing a Proof of Concept version of the aforementioned architecture.</p>
+<p>Consider an exemplary system consisting of two <em>PingPong</em> modules that alternately send messages to each other: when one module receives a message, it replies to the other module with a new message. The <em>PingPong</em> module is implemented in Rust as a <code>struct</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">struct</span> PingPong <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>    <span class="co">/// Name of the module.</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>    name<span class="op">:</span> <span class="op">&amp;</span><span class="ot">&#39;static</span> <span class="dt">str</span><span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    <span class="co">/// Number of messages received by this module.</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>    received_messages<span class="op">:</span> <span class="dt">usize</span><span class="op">,</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>    <span class="co">/// Reference to the queue of the other module&#39;s executor.</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>    other_queue<span class="op">:</span> <span class="op">???,</span> <span class="co">// We will shortly see what the type must be.</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="op">}</span></span></code></pre></div>
+<p>When the system is being initialized, two such objects are created and passed to the executor. The message and the <em>PingPong</em>’s message handler are implemented as follows:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">// The message, Ball, is just a single String</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co">// as it suffices for this simple system:</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">type</span> Ball <span class="op">=</span> <span class="dt">String</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="kw">impl</span> PingPong <span class="op">{</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="kw">fn</span> handler(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span><span class="op">,</span> msg<span class="op">:</span> Ball) <span class="op">{</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>        <span class="kw">self</span><span class="op">.</span>received_messages <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>        <span class="pp">println!</span>(</span>
+<span id="cb2-9"><a href="#cb2-9"></a>            <span class="st">&quot;{} receives {}. It has received {} message(s) so far.&quot;</span><span class="op">,</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>            <span class="kw">self</span><span class="op">.</span>name<span class="op">,</span> msg<span class="op">,</span> <span class="kw">self</span><span class="op">.</span>received_messages</span>
+<span id="cb2-11"><a href="#cb2-11"></a>        )<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a>        <span class="kw">self</span><span class="op">.</span>other_queue<span class="op">.</span>put_msg(Ball <span class="op">{}</span>) <span class="co">// ???</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>    <span class="op">}</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="op">}</span></span></code></pre></div>
+<p>The above attempt to implement the message passing highlights an important issue related to the ownership: if the executor is the owner of the queue and of the modules, how can the module issue a message to the other module? Conceptually, the reference to the queue must be <code>Send</code>, <code>Sync</code>, and easy to clone (it needs to be passed to all modules requiring it). It must also allow of inserting messages to the queue, of course. However, the reference stored in the module cannot own the queue entirely because the executor needs to be able to retrieve messages from it.</p>
+<h4 id="channels">Channels</h4>
+<p>In Rust, the queue can be implemented using a <strong>channel</strong>. A channel, in short, is a queue having its input and output ends decoupled and satisfying all the aforementioned requirements. Such multi-producer, single-consumer FIFO queue communication primitives are available in Rust standard library: <a href="https://doc.rust-lang.org/nightly/std/sync/mpsc/index.html"><code>std::sync::mpsc</code></a>.</p>
+<p>However, during this course, we will use channels provided by the <a href="https://crates.io/crates/crossbeam">crossbeam</a> crate (library), which support several extra features. We can add an external dependency to a Cargo project by executing in a shell:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource shell numberLines"><code class="sourceCode"><span id="cb3-1"><a href="#cb3-1"></a>cargo add crossbeam-channel</span></code></pre></div>
+<p>or simply listing the crate name in <code>Cargo.toml</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource toml numberLines"><code class="sourceCode"><span id="cb4-1"><a href="#cb4-1"></a>[dependencies]</span>
+<span id="cb4-2"><a href="#cb4-2"></a>crossbeam-channel = &quot;0.5&quot;</span></code></pre></div>
+<p>You can find more crates in the official repository at <a href="https://crates.io/">crates.io</a>. Please do not include extra dependencies in your solutions, unless explicitly allowed.</p>
+<p>With the new dependency added, we can use it just as if it were in scope:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource rust numberLines"><code class="sourceCode rust"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">fn</span> crossbeam_example() <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>    <span class="co">// Create a channel of unbounded capacity.</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="co">// Two channel&#39;s ends are returned:</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="kw">let</span> (send_end<span class="op">,</span> receive_end) <span class="op">=</span> <span class="pp">crossbeam_channel::</span>unbounded()<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a></span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="co">// To send a message use the sending end:</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>    send_end<span class="op">.</span>send(<span class="st">&quot;Message&quot;</span>)<span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="co">// To receive a message, use the receiving end:</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="pp">println!</span>(<span class="st">&quot;A new message is received: &#39;{}&#39;&quot;</span><span class="op">,</span> r<span class="op">.</span>recv()<span class="op">.</span>unwrap())<span class="op">;</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="op">}</span></span></code></pre></div>
+<p>More examples are provided in <code>examples/crossbeam.rs</code>.</p>
+<h4 id="simplified-executor-system">Simplified executor system</h4>
+<p>A rough idea how the executor system with the <em>PingPong</em> modules can be implemented, including a demonstration how to use a channel as the queue, is provided in <code>examples/tennis.rs</code>. The example, however, is not a full-featured executor system, as it contains multiple simplifications. For instance, there is only one executor (the system is single-threaded), it supports only one module type (<em>PingPong</em>) and only one simple message type (<em>Ball</em>), the modules are registered statically, it assumes that there are exactly two modules, and they have particular names, it runs for a specified number of steps, and so forth.</p>
+<h2 id="small-assignment">Small Assignment</h2>
+<p>Your task is to implement in Rust a more advanced executor system (although still not a full-featured one) with two modules calculating the <a href="https://en.wikipedia.org/wiki/Fibonacci_number">Fibonacci sequence</a> by exchanging messages between each other.</p>
+<p>The system shall: - consist of one executor, - support a single type of modules (<code>Fibonnacci</code>), - a single, but complex, type of messages (<code>FibonacciSystemMessage</code>).</p>
+<p>It shall support dynamic module registration (when created, a module is registered in the executor by itself) for any number of modules. In other words, even though only two modules make sense when calculating the Fibonacci sequence in the algorithm presented next, the executor system <em>shall not make any assumptions about the number of modules</em>. Furthermore, it should not involve any logic of computing the Fibonacci sequence apart from handling the <code>RegisterModule</code> message to register a module and the <code>Done</code> message to shut down the executor. The executor shall run in a separate, dedicated thread.</p>
+<p>To compute the Fibonacci numbers, one module, <em>A</em>, shall be initialized with <code>0</code> (the 0th Fibonacci number), and the other one, <em>B</em>, with <code>1</code> (the 1st Fibonacci number). The calculation begins when module <em>B</em> receives an <em>Init</em> message. Module <em>B</em> sends its number to module <em>A</em>. Module <em>A</em> calculates the 2nd Fibonacci number, saves it locally, and sends it to module <em>B</em>. Module <em>B</em> receives the message, calculates the next Fibonacci number (by adding the received number to the stored number), saves it locally, and sends it to module <em>A</em>. And so on, back and forth. The process continues until the required index in the Fibonacci sequence is reached (<code>FibonacciModules</code> should track the current index). When one module notices that the required number is calculated, it sends a <code>Done</code> message to the executor, and the whole program should be terminated gracefully.</p>
+<p>For details about the message types, refer to the provided template. The template also asks you to include in your implementation a special <code>println!()</code> statement to log progress of the calculations. An exemplary correct output is provided in <code>main.rs</code>. Remember to <strong>not change the public interface</strong> defined in the template, as your solution will also be unit tested.</p>
+<p>Solutions that calculate the Fibonacci numbers directly (e.g., without a separate thread serving the modules, accepting the messages, and delivering them to the modules) will be discarded.</p>
+<h2 id="additional-homework">Additional Homework</h2>
+<p>The first Large Assignment will be dedicated to implementing a full-featured executor system, so it is worth to review the concept again to make sure that you understand it.</p>
+<p>If you want to see some real-world implementation of the event-driven shared-nothing architecture, we recommend browsing the <a href="https://riker.rs/">Riker</a> framework. The <strong>actor model</strong> it implements is essentially what we call the event-driven shared-nothing architecture, and the <strong>actor</strong> is what we call the module.</p>
+<hr />
+<p>Authors: F. Plata, K. Iwanicki, M. Banaszek, W. Ciszewski, M. Matraszek.</p>
+</section>
+</body>
+</html>
