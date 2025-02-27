@@ -1,0 +1,1 @@
+cd ../data/IMG && qemu-img create -f qcow2 -o backing_file=../BACKING_IMG/zso2025.qcow2,backing_fmt=qcow2 zso2025_cow.qcow2
