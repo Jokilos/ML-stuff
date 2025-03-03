@@ -25,4 +25,8 @@ transformers
 sentencepiece
 accelerate
 seaborn
-xgboost
+tensorboard
+gradio
+langchain
+cohere
+datasets
