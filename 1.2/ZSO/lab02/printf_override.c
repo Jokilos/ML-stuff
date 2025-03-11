@@ -12,5 +12,5 @@ void my_printf(const char* fmt, ...)
 
 int main()
 {
-   my_printf("printing %d + %d = %s\n", 2, 7, "no idea");
+    my_printf("printing %d + %d = %s\n", 2, 7, "no idea");
 }

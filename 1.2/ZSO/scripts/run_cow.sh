@@ -8,7 +8,7 @@ qemu-system-x86_64                                              \
     -net nic,model=virtio                                       \
     -net user,hostfwd=tcp::2222-:22                             \
     -m 1G -device virtio-balloon                                \
-    -fsdev local,id=hshare,path=hshare/,security_model=none     \
+    -fsdev local,id=hshare,path=../hshare/,security_model=none  \
     -device virtio-9p-pci,fsdev=hshare,mount_tag=hshare         \
     -chardev stdio,id=cons,signal=off                           \
     -device virtio-serial-pci                                   \
