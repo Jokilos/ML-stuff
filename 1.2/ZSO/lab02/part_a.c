@@ -1,6 +1,6 @@
 extern int YOUR_DATA;
-int bar(int*);
 
+int bar(int*);
 
 static int DATA = 42;
 
