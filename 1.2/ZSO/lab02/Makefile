@@ -10,3 +10,6 @@ parts:
 
 	# ld part_a.o part_b.o -o parts
 	# gcc part_a.o part_b.o -o parts $(CFLAGS)  -Wl,-emit-relocs -v
+
+libtroll: 
+	gcc -c libtroll.c -o libtroll.s $(CFLAGS)
