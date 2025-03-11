@@ -25,3 +25,6 @@ pboo:
 
 po:
 	objdump -dr -M intel parts
+
+libtroll: 
+	gcc -c libtroll.c -o libtroll.s $(CFLAGS)
