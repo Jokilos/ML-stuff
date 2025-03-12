@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <sys/mman.h>   /* mmap(), mprotect() */
 
@@ -21,8 +22,6 @@ static uint8_t my_code[] = {
 /*22:*/  0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, //movabs//rax,0x0
 /*29:*/  0x00, 0x00, 0x00, 
 /*24:*/  //R_X86_64_64//write
-/*1179:*/  0x48, 0x89, 0xfa, //mov  //rdx,rdi  
-/*117c:*/  0x48, 0xc7, 0xc7, 0x01, 0x00, 0x00, 0x00, //mov  //rdi,0x1  	
 /*2c:*/  0xff, 0xd0, //call//rax
 /*2e:*/  0x90, //nop
 /*2f:*/  0xc9, //leave
@@ -45,17 +44,13 @@ int power(int n, int pwr){
 }
 
 void* make_str(int num, char* str){
-    // uint64_t str;
     int digit;
 
     for (int i = 1; i >= 0; i--){
         int pwr = power(10, i);
 
-        // printf("pwr: %d %d\n", i, pwr);
         if ((digit = num / pwr) > 0){
-            // printf("digit: %d\n", digit);
             str[1 - i] = (0x30 + digit);
-            // str += (0x30 + digit) << i * 8;
             num -= pwr * digit;
         }
     }
@@ -64,8 +59,8 @@ void* make_str(int num, char* str){
 typedef void (*sighandler_t)(int);
 
 sighandler_t make_signal_handler(int num){
-    char str[3];
-    str[2] = '\0';
+    char* str = (char*) malloc(2);
+    memset(str, 0, 2);
 
     make_str(num, str);
     fix_code(str);
@@ -97,7 +92,12 @@ sighandler_t make_signal_handler(int num){
 int main(void)
 {
     sighandler_t old_2 = make_signal_handler(2);
+    raise(2);
+    printf("\n");
+
     sighandler_t old_12 = make_signal_handler(12);
+    raise(12);
+    printf("\n");
 
     return 0;
 }
