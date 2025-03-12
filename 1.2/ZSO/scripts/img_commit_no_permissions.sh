@@ -1,0 +1,1 @@
+qemu-img commit -f qcow2 ../data/IMG/zso2025_cow.qcow2
