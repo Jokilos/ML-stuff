@@ -30,3 +30,5 @@ gradio
 langchain
 cohere
 datasets
+tensorflow
+keras
