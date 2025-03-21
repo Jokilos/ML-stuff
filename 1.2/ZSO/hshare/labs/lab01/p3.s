@@ -44,9 +44,6 @@ g:
 	.text
 	.globl	main
 	.type	main, @function
-xd:
-	mov rdx, rdi
-	mov rdi, 1 
 main:
 	push	rbp
 	mov	rbp, rsp

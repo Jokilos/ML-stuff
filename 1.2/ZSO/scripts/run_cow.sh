@@ -3,11 +3,11 @@ qemu-system-x86_64                                              \
     -drive file=../data/IMG/zso2025_cow.qcow2,if=none,id=drive0 \
     -device scsi-hd,bus=scsi0.0,drive=drive0                    \
     -enable-kvm                                                 \
-    -smp 8                                                      \
+    -smp 16                                                      \
     -cpu host                                                   \
     -net nic,model=virtio                                       \
     -net user,hostfwd=tcp::2222-:22                             \
-    -m 1G -device virtio-balloon                                \
+    -m 4G -device virtio-balloon                                \
     -fsdev local,id=hshare,path=../hshare/,security_model=none  \
     -device virtio-9p-pci,fsdev=hshare,mount_tag=hshare         \
     -chardev stdio,id=cons,signal=off                           \
