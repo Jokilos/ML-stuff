@@ -32,3 +32,5 @@ cohere
 datasets
 tensorflow
 keras
+capstone 
+keystone-engine
