@@ -34,3 +34,5 @@ tensorflow
 keras
 capstone 
 keystone-engine
+torch_tb_profiler
+einops
