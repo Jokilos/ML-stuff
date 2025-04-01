@@ -2,6 +2,7 @@ import capstone
 import keystone
 from comparator import Comparator
 from parse_insn import ParseInsn
+from rela import Rela
 
 class Translator:
     prolog_x86 = """
@@ -43,10 +44,17 @@ class Translator:
         
         return code
     
-    def translate_code(code_section, p_shift, rela_section = None, verbose = False):
-        code = Translator.disassemble_code(code_section, True).splitlines()
-        code_x86 = Translator.prolog_x86.replace('#prologue_shift', p_shift)
+    def translate_code(
+            code_section,
+            p_shift,
+            rela_section : dict[int, Rela] = None,
+            verbose = False,
+        ):
 
+        code_x86 = Translator.prolog_x86.replace('#prologue_shift', p_shift)
+        code_x86_bytes, code_x86_size = Translator.assemble_code(code_x86)
+        code_arm_size = 8
+        
         md = capstone.Cs(capstone.CS_ARCH_ARM64, capstone.CS_MODE_ARM)
         md.detail = True
         instructions = md.disasm(code_section, 0)
@@ -56,21 +64,28 @@ class Translator:
             inst_list += [insn]
 
         for insn in inst_list[2:-2]:
-            off = f"0x{insn.address:x}:\t" 
+            if rela_section:
+                if code_arm_size in rela_section.keys():
+                    rela_section[code_arm_size].overwrite_rela(offset = code_x86_size)
 
-            code_line = f"{off}{insn.mnemonic}\t{insn.op_str}"
             code_line_x86 = ParseInsn.parse(insn, rela_section)
+            line_bytes, line_size = Translator.assemble_code(code_line_x86)
 
-            code += code_line + "\n"
             code_x86 += code_line_x86 
+            code_x86_bytes += line_bytes
+            code_x86_size += line_size
+            code_arm_size += 4
 
-            if verbose:
-                print(code_line)
-                print(code_line_x86)
+        return (
+            code_x86 + Translator.epilog_x86,
+            code_x86_bytes + Translator.assemble_code(Translator.epilog_x86)[0],
+        )
 
-            # print(ParseInsn.parse(insn, rela_section))
-
-        return code_x86 + Translator.epilog_x86
+    # if verbose:
+    #     off = f"0x{insn.address:x}:\t" 
+    #     code_line = f"{off}{insn.mnemonic}\t{insn.op_str}"
+    #     print(code_line)
+    #     print(code_line_x86)
 
     def assemble_code(code, verbose = False):
         # separate assembly instructions by ; or \n
@@ -84,7 +99,7 @@ class Translator:
                 print(  "%s = %s (no.statements: %u) (no.bytes %u)"
                         %(code, encoding, count, len(encoding)))
 
-            return bytes(encoding)
+            return bytes(encoding), count
 
         except keystone.KsError as e:
             print("ERROR: %s" %e)

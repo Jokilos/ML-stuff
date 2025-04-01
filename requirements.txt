@@ -32,7 +32,10 @@ cohere
 datasets
 tensorflow
 keras
+tf-keras
 capstone 
 keystone-engine
 torch_tb_profiler
 einops
+boto3
+dspy
