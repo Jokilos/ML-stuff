@@ -49,9 +49,9 @@ class ParseInsn:
     @staticmethod
     def get_sizeq(reg):
         if ParseInsn.isreg64(reg):
-            return 'qword_ptr'
+            return 'qword ptr'
         else:
-            return 'dword_ptr'
+            return 'dword ptr'
 
     @staticmethod
     def is_reg(str):
@@ -74,7 +74,12 @@ class ParseInsn:
         reg1, reg2, op2d = ptn.search(insn.op_str).groups()
 
         op1 = ParseInsn.register_translation[reg1]
-        op2b = ParseInsn.register_translation[reg2]
+
+        if not ParseInsn.isreg64(reg1) and reg2 == 'sp':
+            op2b = 'esp'
+        else:
+            op2b = ParseInsn.register_translation[reg2]
+
         sq = ParseInsn.get_sizeq(reg1)
 
         return f'mov {op1}, {sq} [{op2b} + {op2d}]\n'
@@ -88,7 +93,12 @@ class ParseInsn:
         reg1, reg2, op2d = ptn.search(insn.op_str).groups()
 
         op1 = ParseInsn.register_translation[reg1]
-        op2b = ParseInsn.register_translation[reg2]
+
+        if not ParseInsn.isreg64(reg1) and reg2 == 'sp':
+            op2b = 'esp'
+        else:
+            op2b = ParseInsn.register_translation[reg2]
+
         sq = ParseInsn.get_sizeq(reg1)
 
         return f'mov {sq} [{op2b} + {op2d}], {op1}\n'
@@ -150,9 +160,9 @@ class ParseInsn:
         has_rela = insn.address in rela.keys() 
         if ParseInsn.is_reg(op3):
             op3 = ParseInsn.register_translation[op3]
+        else:
             if has_rela:
                 rela[insn.address].overwrite_rela(type = 'R_AMD64_32')
-        else:
             op3 = op3[1:]
 
         if op1 == op2:
@@ -173,7 +183,7 @@ class ParseInsn:
         rela[insn.address].overwrite_rela(type = 'R_AMD64_PC32')
 
         # the offset is relocated
-        ret = 'call 7fffffff\n' 
+        ret = 'call 0x7fffffff\n' 
         # put the return value in the register to which x0 maps'
         ret += 'mov rdi, rax\n'
         return ret

@@ -1,5 +1,5 @@
 import struct
-from tools import make_idx_dict, Const
+from tools import make_idx_dict, Const, overwrite_file
 from elf_file import ElfFile
 
 class ElfHeader:
@@ -23,6 +23,7 @@ class ElfHeader:
     ]
 
     idx_dict = make_idx_dict(fields)
+    amd_machine = 0x003e
 
     format = (
         # e_ident (16 bytes), e_type (2 bytes), e_machine (2 bytes), e_version (4 bytes)
@@ -45,16 +46,14 @@ class ElfHeader:
         
         ElfHeader.unpacked_data = list(struct.unpack(ElfHeader.format, ElfFile.data[:Const.HEADER_SIZE]))
 
-    def overwrite_elf_header(file_path):
-        amd_machine = 0x003e
-        ElfHeader.unpacked_data[2] = amd_machine
-
+    def save(file):
         packed_data = struct.pack(ElfHeader.format, *ElfHeader.unpacked_data)
-
-        with open(file_path, 'wb') as f:
-            f.write(packed_data)
-            f.write(ElfFile.data[Const.HEADER_SIZE:])
+        overwrite_file(file, 0, packed_data)
 
     def get(name):
         idx = ElfHeader.idx_dict[name]
         return ElfHeader.unpacked_data[idx]
+
+    def set(name, value):
+        idx = ElfHeader.idx_dict[name]
+        ElfHeader.unpacked_data[idx] = value

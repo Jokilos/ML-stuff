@@ -4,11 +4,16 @@ class ElfFile:
     data = None
 
     section_headers = []
+    new_section_headers = []
     symbols = []
+    sh_idx_translation = []
+
     rela_dict = {}
+    symbol_code_dict = {}
+    sh_dict = {}
 
     shstroff = None
-    sh_dict = {}
+    symtab_idx = None
 
     def setup(file_path):
         with open(file_path, 'rb') as f:
@@ -17,6 +22,29 @@ class ElfFile:
     def read_elf_header():
         from elf_header import ElfHeader
         ElfHeader.read_elf_header()
+
+    def read_section_headers(verbose = False):
+        from elf_header import ElfHeader
+        from section_header import SectionHeader
+
+        for i in range(ElfHeader.get('e_shnum')):
+            offset = ElfHeader.get('e_shoff') + i * ElfHeader.get('e_shentsize')
+
+            ElfFile.section_headers += [SectionHeader(offset)]
+        
+        shstrs = ElfFile.section_headers[ElfHeader.get('e_shstrndx')]
+        shstrs.is_shstrs = True
+        ElfFile.shstroff = shstrs.get('sh_offset')
+
+        for i in range(len(ElfFile.section_headers)):
+            sh = ElfFile.section_headers[i]
+            sh.set_name()
+
+            decoded_name = sh.name.decode()
+            ElfFile.sh_dict[decoded_name] = sh
+
+            if verbose:
+                ElfFile.section_headers[i].print()
 
     def find_string(relative_offset, sh_string = False):
         str_offset = relative_offset
@@ -33,44 +61,21 @@ class ElfFile:
 
         return str
         
-    def read_section_headers(verbose = False):
-        from elf_header import ElfHeader
-        from section_header import SectionHeader
-
-        for i in range(ElfHeader.get('e_shnum')):
-            offset = ElfHeader.get('e_shoff') + i * ElfHeader.get('e_shentsize')
-
-            ElfFile.section_headers += [SectionHeader(offset)]
-        
-        shstrns = ElfFile.section_headers[ElfHeader.get('e_shstrndx')]
-        ElfFile.shstroff = shstrns.get('sh_offset')
-
-        null_sh = ElfFile.section_headers[0]
-
-        for i in range(len(ElfFile.section_headers)):
-            sh = ElfFile.section_headers[i]
-            sh.set_name()
-
-            decoded_name = sh.name.decode('utf-8')
-            ElfFile.sh_dict[decoded_name] = sh
-
-            if SectionHeader.delete_pattern.search(decoded_name):
-                ElfFile.section_headers[i] = null_sh
-
-            if verbose:
-                ElfFile.section_headers[i].print()
-
     def read_symbols():
         from sym import Sym
 
-        sym_sh = ElfFile.sh_dict['.symtab']
-        ElfFile.symbols = Sym.collect_sym_entries(sym_sh)
+        for i, sh in enumerate(ElfFile.section_headers):
+            if (sh.type == 'SHT_SYMTAB'):
+                ElfFile.symtab_idx = i
+                ElfFile.symbols = Sym.collect_sym_entries(sh)
 
     def read_rela():
         from rela import Rela
+        from section_header import SectionHeader
 
         for sh in ElfFile.section_headers:
-            if (sh.type == 'SHT_RELA'):
+            ignore_section = SectionHeader.delete_pattern.search(sh.name.decode())
+            if sh.type == 'SHT_RELA' and not ignore_section:
                 rela_entries = Rela.collect_rela_entries(sh)
                 ElfFile.rela_dict[sh.name] = rela_entries
             
@@ -82,9 +87,10 @@ class ElfFile:
     def find_code_sections():
         from translator import Translator
 
-        for s in ElfFile.symbols:
+        for i, s in enumerate(ElfFile.symbols):
             if s.type == 'STT_FUNC': 
                 sh = ElfFile.section_headers[s.get('st_shndx')]
+                sh.is_expanded = True
 
                 offset = s.get('st_value')
                 code = sh.section_data[offset : offset + s.get('st_size')]
@@ -95,3 +101,80 @@ class ElfFile:
                 
                 if p_shift := Translator.count_functions(code):
                     code_x86 = Translator.translate_code(code, p_shift, rela)
+                    ElfFile.symbol_code_dict[i] = code_x86
+
+    def overwrite_code_sections():
+        from translator import Translator
+
+        for i, s in enumerate(ElfFile.symbols):
+            if s.type == 'STT_FUNC': 
+                sh = ElfFile.section_headers[s.get('st_shndx')]
+                code_x86 = ElfFile.symbol_code_dict[i]
+                assembled = Translator.assemble_code(code_x86)
+
+                ## TO DO ## fix to be more general
+                sh.section_data = sh.section_data[0 : s.get('st_value')] + \
+                    assembled + sh.section_data[s.get('st_value') + s.get('st_size') :]
+                
+                s.set('st_size', len(assembled))
+
+    def remove_sections():
+        from elf_header import ElfHeader
+        from section_header import SectionHeader 
+
+        new_section_headers = []
+        deleted_sections = 0
+        for i, sh in enumerate(ElfFile.section_headers):
+            if not SectionHeader.delete_pattern.search(sh.name.decode()):
+                new_section_headers += [sh]
+                ElfFile.sh_idx_translation.append(i - deleted_sections)
+            else:
+                deleted_sections += 1
+                ElfFile.sh_idx_translation.append(ElfFile.symtab_idx)
+
+        ElfHeader.set('e_shnum', len(new_section_headers))
+
+        for i, sh in enumerate(new_section_headers):
+            link = sh.get('sh_link')
+            sh.set('sh_link', ElfFile.sh_idx_translation[link])
+
+            if sh.is_shstrs:
+                ElfHeader.set('e_shstrndx', i)
+
+        ElfFile.new_section_headers = new_section_headers
+
+    def save_expanded_sections(file):
+        from elf_header import ElfHeader
+
+        current_offset = ElfHeader.get('e_shoff')
+
+        for sh in ElfFile.new_section_headers:
+            if sh.is_expanded:
+                align = sh.get('sh_offset') % 16
+                current_offset += align
+
+                sh.set('sh_offset', current_offset)
+                current_offset = sh.save_section(file, current_offset)
+
+                current_offset += 16 - (current_offset % 16)
+
+        ElfHeader.set('e_shoff', current_offset)
+        for sh in ElfFile.new_section_headers:
+            current_offset = sh.save(file, current_offset)
+
+    def save_rela_and_sym(file):
+        from rela import Rela
+        from sym import Sym
+
+        for name, rela_entries in ElfFile.rela_dict.items():
+            sh = ElfFile.sh_dict[name.decode()]
+            Rela.save(file, sh, rela_entries.values())
+
+        Sym.save(file, ElfFile.section_headers[ElfFile.symtab_idx], ElfFile.symbols)
+
+    def save_header(file):
+        from elf_header import ElfHeader
+
+        ElfHeader.set('e_machine', ElfHeader.amd_machine)
+        ElfHeader.save(file)
+

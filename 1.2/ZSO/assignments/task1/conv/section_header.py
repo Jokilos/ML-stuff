@@ -1,12 +1,12 @@
 import re
 import struct
-from tools import two_way_dict, make_idx_dict
+from tools import two_way_dict, make_idx_dict, overwrite_file
 from elf_file import ElfFile
 from elf_header import ElfHeader
 
 class SectionHeader:
     delete_pattern = \
-        re.compile(r'(.note.gnu.property|.eh.frame)', 0)
+        re.compile(r'(\.note\.gnu\.property|\.eh_frame)', 0)
 
     sh_types = two_way_dict({
         'SHT_NULL' : 0, 
@@ -59,6 +59,8 @@ class SectionHeader:
         self.type = SectionHeader.sh_types[self.get('sh_type')]
 
         self.name = None
+        self.is_shstrs = False
+        self.is_expanded = False
 
         if verbose:
             self.print()
@@ -72,8 +74,24 @@ class SectionHeader:
         idx = SectionHeader.idx_dict[name]
         return self.unpacked_data[idx]
     
+    def set(self, name, value):
+        idx = SectionHeader.idx_dict[name]
+        self.unpacked_data[idx] = value
+
     def set_name(self, verbose = False):
         self.name = ElfFile.find_string(self.get('sh_name'), True)
 
         if verbose:
             print(self.name)
+
+    def save_section(self, file, offset):
+        overwrite_file(file, offset, self.section_data)
+        self.set('sh_size', len(self.section_data))
+
+        return offset + len(self.section_data)
+    
+    def save(self, file, offset):
+        packed_data = struct.pack(SectionHeader.format, *self.unpacked_data)
+        overwrite_file(file, offset, packed_data)
+
+        return offset + len(packed_data)

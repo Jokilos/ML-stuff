@@ -1,5 +1,5 @@
 import struct
-from tools import dict_safe_get, make_idx_dict, two_way_dict
+from tools import dict_safe_get, make_idx_dict, two_way_dict, overwrite_file
 from elf_file import ElfFile
 
 class Sym:
@@ -38,7 +38,9 @@ class Sym:
     idx_dict = make_idx_dict(fields)
 
     def __init__(self, offset, verbose = False):
-        self.unpacked_data = struct.unpack(Sym.format, ElfFile.data[offset : offset + Sym.size])
+        self.unpacked_data = list(
+            struct.unpack(Sym.format, ElfFile.data[offset : offset + Sym.size])
+        )
         self.offset = offset
 
         self.name = ElfFile.find_string(self.get('st_name'), sh_string = False)
@@ -66,6 +68,10 @@ class Sym:
         idx = Sym.idx_dict[name]
         return self.unpacked_data[idx]
 
+    def set(self, name, value):
+        idx = Sym.idx_dict[name]
+        self.unpacked_data[idx] = value
+
     def collect_sym_entries(sh):
         base_offset = offset = sh.get('sh_offset')
         size = sh.get('sh_size')
@@ -77,3 +83,11 @@ class Sym:
             offset += entsize
 
         return sym_entries
+
+    def save(file, sh, rela_entries):
+        data = b''
+
+        for re in rela_entries:
+            data += struct.pack(Sym.format, *re.unpacked_data)
+
+        overwrite_file(file, sh.get('sh_offset'), data)

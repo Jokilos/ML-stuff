@@ -1,5 +1,5 @@
 import struct
-from tools import two_way_dict, make_idx_dict
+from tools import two_way_dict, make_idx_dict, overwrite_file
 from elf_file import ElfFile
 
 class Rela:
@@ -83,7 +83,19 @@ class Rela:
 
         while offset < base_offset + size:
             rela = Rela(offset)
+            if rela.type == Rela.code_types['R_AARCH64_ABS64']:
+                rela.overwrite_rela(type = 'R_AMD64_64')
+
             rela_entries[rela.get('r_offset')] = rela
             offset += entsize
 
         return rela_entries
+
+    def save(file, sh, rela_entries):
+        data = b''
+
+        for re in rela_entries:
+            data += struct.pack(Rela.format, *re.unpacked_data)
+
+        overwrite_file(file, sh.get('sh_offset'), data)
+

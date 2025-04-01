@@ -50,3 +50,13 @@ def expand_rt_dict(dictionary):
         # print(k,v)
 
     return reg_p, dictionary
+
+def overwrite_file(file, offset, data):
+    with open(file, 'r+b') as f:
+        content = f.read()
+
+        content = content[0 : offset] + \
+            data + content[offset + len(data) :]
+
+        f.seek(0)
+        f.write(content)
