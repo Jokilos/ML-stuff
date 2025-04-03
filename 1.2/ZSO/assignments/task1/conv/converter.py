@@ -1,9 +1,20 @@
+#!/usr/bin/env python3
+
 from elf_file import ElfFile
 import shutil
 
-input = '../test-aarch64.o'  
-output = '../out.o'
-good_output = '../test-aarch64-x64.o'  
+# Error coloring
+import sys
+from IPython.core import ultratb
+sys.excepthook = ultratb.FormattedTB(color_scheme = 'Linux', call_pdb = False)
+
+# print(sys.argv)
+# input = '../test-aarch64.o'  
+# output = '../out.o'
+# good_output = '../test-aarch64-x64.o'  
+
+input = sys.argv[1]
+output = sys.argv[2]
 
 shutil.copy(input, output)
 

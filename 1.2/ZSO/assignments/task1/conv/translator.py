@@ -64,9 +64,10 @@ class Translator:
             inst_list += [insn]
 
         for insn in inst_list[2:-2]:
-            if rela_section:
-                if code_arm_size in rela_section.keys():
-                    rela_section[code_arm_size].overwrite_rela(offset = code_x86_size)
+            # print(code_x86_size)
+
+            if rela_section and code_arm_size in rela_section.keys():
+                rela_section[code_arm_size].overwrite_rela(offset = code_x86_size)
 
             code_line_x86 = ParseInsn.parse(insn, rela_section)
             line_bytes, line_size = Translator.assemble_code(code_line_x86)
@@ -99,7 +100,7 @@ class Translator:
                 print(  "%s = %s (no.statements: %u) (no.bytes %u)"
                         %(code, encoding, count, len(encoding)))
 
-            return bytes(encoding), count
+            return bytes(encoding), len(encoding) 
 
         except keystone.KsError as e:
             print("ERROR: %s" %e)

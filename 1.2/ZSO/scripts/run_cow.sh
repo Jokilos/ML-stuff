@@ -3,7 +3,7 @@ qemu-system-x86_64                                              \
     -drive file=../data/IMG/zso2025_cow.qcow2,if=none,id=drive0 \
     -device scsi-hd,bus=scsi0.0,drive=drive0                    \
     -enable-kvm                                                 \
-    -smp 16                                                      \
+    -smp 8                                                      \
     -cpu host                                                   \
     -net nic,model=virtio                                       \
     -net user,hostfwd=tcp::2222-:22                             \
@@ -14,6 +14,9 @@ qemu-system-x86_64                                              \
     -device virtio-serial-pci                                   \
     -device virtconsole,chardev=cons                            \
     -display none                                               \
+    -kernel ../data/IMG/vmlinuz-6.12.6zsobpf                    \
+    -initrd ../data/IMG/initrd.img-6.12.6zsobpf                 \
+    -append "root=/dev/sda3"
 
     # stty rows 236 cols 64 
 

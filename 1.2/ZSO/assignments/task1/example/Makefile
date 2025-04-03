@@ -11,6 +11,7 @@ X86_OBJDUMP := x86_64-linux-gnu-objdump
 
 AARCH_CC := aarch64-linux-gnu-gcc
 AARCH_OBJDUMP := aarch64-linux-gnu-objdump
+
 # Always generate a frame pointer
 AARCH_CFLAGS += -O0 -mno-omit-leaf-frame-pointer -fno-omit-frame-pointer
 # Restrict register use to a subset

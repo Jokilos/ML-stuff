@@ -100,17 +100,13 @@ class ElfFile:
                 rela = ElfFile.rela_dict[rela_name] if exists else None
                 
                 if p_shift := Translator.count_functions(code):
-                    code_x86 = Translator.translate_code(code, p_shift, rela)
-                    ElfFile.symbol_code_dict[i] = code_x86
+                    ElfFile.symbol_code_dict[i] = Translator.translate_code(code, p_shift, rela)
 
     def overwrite_code_sections():
-        from translator import Translator
-
         for i, s in enumerate(ElfFile.symbols):
             if s.type == 'STT_FUNC': 
                 sh = ElfFile.section_headers[s.get('st_shndx')]
-                code_x86 = ElfFile.symbol_code_dict[i]
-                assembled, _ = Translator.assemble_code(code_x86)
+                _, assembled = ElfFile.symbol_code_dict[i]
 
                 ## TO DO ## fix to be more general
                 sh.section_data = sh.section_data[0 : s.get('st_value')] + \

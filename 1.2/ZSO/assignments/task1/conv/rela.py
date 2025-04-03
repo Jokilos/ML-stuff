@@ -38,7 +38,7 @@ class Rela:
         self.unpacked_data = list(
             struct.unpack(Rela.format, ElfFile.data[offset : offset + Rela.size])
         )
-        self.offset = offset
+        self.file_offset = offset
         info = self.get('r_info')
         self.sym = Rela.R_SYM(info)
         self.type = Rela.code_types[Rela.R_TYPE(info)]
@@ -56,12 +56,15 @@ class Rela:
     def overwrite_rela(
             self, 
             offset = None, 
+            offset_shift = None, 
             symbol = None, 
             type = None, 
             addend = None,
         ):
         if offset:
             self.unpacked_data[0] = offset
+        if offset_shift:
+            self.unpacked_data[0] = self.unpacked_data[0] + offset_shift
         if symbol:
             self.sym = symbol
         if type:
@@ -69,7 +72,7 @@ class Rela:
         if addend:
             self.unpacked_data[2] = addend
 
-        self.unpacked_data[1] = Rela.R_INFO(self.sym, Rela.code_types[type])
+        self.unpacked_data[1] = Rela.R_INFO(self.sym, Rela.code_types[self.type])
         
     def get(self, name):
         idx = Rela.idx_dict[name]

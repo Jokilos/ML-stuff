@@ -111,8 +111,10 @@ class ParseInsn:
 
         reg1, _ = ptn.search(insn.op_str).groups()
 
-        # rela[insn.address].print()
-        rela[insn.address].overwrite_rela(type = 'R_AMD64_32')
+        rela[insn.address].overwrite_rela(
+            type = 'R_AMD64_32',
+            offset_shift = 3,
+        )
 
         op1 = ParseInsn.register_translation[reg1]
 
@@ -162,7 +164,10 @@ class ParseInsn:
             op3 = ParseInsn.register_translation[op3]
         else:
             if has_rela:
-                rela[insn.address].overwrite_rela(type = 'R_AMD64_32')
+                rela[insn.address].overwrite_rela(
+                    type = 'R_AMD64_32',
+                    offset_shift = -4,    
+                )
             op3 = op3[1:]
 
         if op1 == op2:
@@ -180,7 +185,10 @@ class ParseInsn:
 
     @staticmethod
     def bl(insn : capstone.CsInsn, rela : dict[int, Rela] = None):
-        rela[insn.address].overwrite_rela(type = 'R_AMD64_PC32')
+        rela[insn.address].overwrite_rela(
+            type = 'R_AMD64_PC32',
+            offset_shift = 1,
+        )
 
         # the offset is relocated
         ret = 'call 0x7fffffff\n' 
