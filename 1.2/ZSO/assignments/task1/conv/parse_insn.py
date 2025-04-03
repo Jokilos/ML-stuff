@@ -132,7 +132,6 @@ class ParseInsn:
         op1 = ParseInsn.register_translation[op1]
 
         if ParseInsn.is_reg(op2):
-            print(op2)
             op2 = ParseInsn.register_translation[op2]
         else:
             op2 = op2[1:]
@@ -177,7 +176,7 @@ class ParseInsn:
                 ret += f'and {tmp}, 0xfff\n'
                 ret += f'add {opx}, {tmp}\n'
             else:
-                ret = f'add {opx}, {opy}'
+                ret = f'add {opx}, {opy}\n'
 
             return ret
 
@@ -209,6 +208,7 @@ class ParseInsn:
 
         imm = ptn.search(insn.op_str).groups()[0]
 
+        # return 'jmp 0xfffffff\n'
         return f'jmp {imm}\n'
     
     @staticmethod
@@ -218,4 +218,5 @@ class ParseInsn:
         imm = ptn.search(insn.op_str).groups()[0]
         cond = ParseInsn.cond_mapping[cond]
 
+        # return f'j{cond} 0xfffffff\n'
         return f'j{cond} {imm}\n'

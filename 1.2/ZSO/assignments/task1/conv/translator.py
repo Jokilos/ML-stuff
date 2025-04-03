@@ -27,15 +27,28 @@ class Translator:
         code = Translator.disassemble_code(code_section, show_offsets = False)
         return Comparator.check_function(code)
 
-    def disassemble_code(code_section, show_offsets = True, verbose = False):
+    def disassemble_code(
+            code_section, 
+            show_offsets = True, 
+            x86 = False,
+            show_bytes = False,
+            verbose = False,
+        ):
         # AArch64 architecture
-        md = capstone.Cs(capstone.CS_ARCH_ARM64, capstone.CS_MODE_ARM)
+        if x86:
+            md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
+        else:
+            md = capstone.Cs(capstone.CS_ARCH_ARM64, capstone.CS_MODE_ARM)
+
         instructions = md.disasm(code_section, 0)
 
         code = ""
         for insn in instructions:
             off = f"0x{insn.address:x}:\t" if show_offsets else ""
-            code_line = f"{off}{insn.mnemonic}\t{insn.op_str}"
+            if show_bytes:
+                code_line = f"{off} {insn.bytes} {insn.mnemonic}\t{insn.op_str}"
+            else:
+                code_line = f"{off} {insn.mnemonic}\t{insn.op_str}"
 
             code += code_line + "\n"
 
@@ -43,18 +56,59 @@ class Translator:
                 print(code_line)
         
         return code
-    
+
+    def jump_dict_gen(lines):
+        jump_dict = {}
+        label_num = 0
+        for insn in lines:
+            if insn.mnemonic[0] == 'b':
+                code_line_x86 = ParseInsn.parse(insn, None)
+                disp = int(code_line_x86[3:].strip(), base = 16)
+                jump_dict[disp] = f'.jmp_label_{label_num}:\n'
+                label_num += 1
+
+        return jump_dict
+
+    def translate_lines(lines : list[capstone.CsInsn], p_shift, jump_dict, rela_section):
+        label_num = 0
+        code_x86 = Translator.prolog_x86.replace('#prologue_shift', p_shift)
+        _, code_x86_size = Translator.assemble_code(code_x86)
+
+        for insn in lines:
+            if rela_section and insn.address in rela_section.keys():
+                rela_section[insn.address].overwrite_rela(offset = code_x86_size)
+
+            code_line_x86 = ParseInsn.parse(insn, rela_section)
+
+            if insn.address in jump_dict.keys():
+                code_x86 += jump_dict[insn.address]
+
+            if code_line_x86[0] == 'j':
+                inst = code_line_x86[:3].strip()
+                code_line_x86_asm = f'{inst} .jmp_label_{label_num}\n'
+                label_num += 1
+                code_line_x86 = f'{inst} 0xffffffff\n'
+            else:
+                code_line_x86_asm = code_line_x86
+
+            _, line_size = Translator.assemble_code(code_line_x86)
+
+            # print(f'{insn.address}: {code_line_x86_asm}')
+            code_x86 += code_line_x86_asm
+            code_x86_size += line_size
+
+        arm_code_size = len(lines) * 4 + 8 
+        if arm_code_size in jump_dict.keys():
+            code_x86 += jump_dict[arm_code_size]
+
+        return code_x86, code_x86_size
+
     def translate_code(
             code_section,
             p_shift,
             rela_section : dict[int, Rela] = None,
             verbose = False,
         ):
-
-        code_x86 = Translator.prolog_x86.replace('#prologue_shift', p_shift)
-        code_x86_bytes, code_x86_size = Translator.assemble_code(code_x86)
-        code_arm_size = 8
-        
         md = capstone.Cs(capstone.CS_ARCH_ARM64, capstone.CS_MODE_ARM)
         md.detail = True
         instructions = md.disasm(code_section, 0)
@@ -63,30 +117,30 @@ class Translator:
         for insn in instructions:
             inst_list += [insn]
 
-        for insn in inst_list[2:-2]:
-            # print(code_x86_size)
+        jump_dict = Translator.jump_dict_gen(inst_list[2:-2])
 
-            if rela_section and code_arm_size in rela_section.keys():
-                rela_section[code_arm_size].overwrite_rela(offset = code_x86_size)
-
-            code_line_x86 = ParseInsn.parse(insn, rela_section)
-
-            # off = f"0x{insn.address:x}:\t" 
-            # code_line = f"{off}{insn.mnemonic}\t{insn.op_str}"
-            # print(code_line)
-            # print(code_line_x86)
-
-            line_bytes, line_size = Translator.assemble_code(code_line_x86)
-
-            code_x86 += code_line_x86 
-            code_x86_bytes += line_bytes
-            code_x86_size += line_size
-            code_arm_size += 4
-
-        return (
-            code_x86 + Translator.epilog_x86,
-            code_x86_bytes + Translator.assemble_code(Translator.epilog_x86)[0],
+        code_x86, code_x86_size = Translator.translate_lines(
+            inst_list[2:-2],
+            p_shift,
+            jump_dict,
+            rela_section
         )
+
+        _, epi_size = Translator.assemble_code(Translator.epilog_x86)
+
+        code_x86 += Translator.epilog_x86 
+        code_x86_size += epi_size
+
+        print(f'{code_x86_size=}')
+        print(jump_dict)
+
+        code_x86_bytes, final_size = Translator.assemble_code(code_x86)
+
+        Translator.disassemble_code(code_x86_bytes, x86=True, show_bytes=True, verbose=True)
+
+        assert final_size == code_x86_size, (final_size, code_x86_size)
+
+        return code_x86_bytes, code_x86_size
 
     # if verbose:
     #     off = f"0x{insn.address:x}:\t" 

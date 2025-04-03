@@ -1,4 +1,5 @@
 import struct
+import sys
 
 class ElfFile:
     data = None
@@ -101,6 +102,9 @@ class ElfFile:
                 
                 if p_shift := Translator.count_functions(code):
                     ElfFile.symbol_code_dict[i] = Translator.translate_code(code, p_shift, rela)
+                else:
+                    print("The function is not up to assignment specification.")
+                    sys.exit(1)
 
     def overwrite_code_sections():
         for i, s in enumerate(ElfFile.symbols):

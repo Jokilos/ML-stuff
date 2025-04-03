@@ -8,10 +8,14 @@ import sys
 from IPython.core import ultratb
 sys.excepthook = ultratb.FormattedTB(color_scheme = 'Linux', call_pdb = False)
 
-# print(sys.argv)
-# input = '../test-aarch64.o'  
-# output = '../out.o'
-# good_output = '../test-aarch64-x64.o'  
+# code = """mov esi, edi
+# baben:
+# mov rsp, rax
+# jump .baben
+# """
+# from translator import Translator
+# print(Translator.assemble_code(code, True))
+# assert False
 
 input = sys.argv[1]
 output = sys.argv[2]
@@ -25,6 +29,7 @@ ElfFile.read_symbols()
 ElfFile.read_rela()
 
 ElfFile.find_code_sections()
+assert False
 ElfFile.overwrite_code_sections()
 
 ElfFile.remove_sections()

@@ -76,6 +76,7 @@ class Comparator:
             if span == (0, len(code) - 1):
                 return match_p.group(1) 
 
-            assert False, (span(), len(code) - 1, 'Assignment conditions not fullfilled.')
+            print(code)
+            assert False, (span, len(code) - 1, 'Assignment conditions not fullfilled.')
             
         return None
