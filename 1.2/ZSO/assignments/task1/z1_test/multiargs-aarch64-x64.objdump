@@ -1,0 +1,51 @@
+
+multiargs-aarch64-x64.o:     file format elf64-x86-64
+multiargs-aarch64-x64.o
+architecture: i386:x86-64, flags 0x00000011:
+HAS_RELOC, HAS_SYMS
+start address 0x0000000000000000
+
+Sections:
+Idx Name          Size      VMA               LMA               File off  Algn
+  0 .text         00000076  0000000000000000  0000000000000000  00000330  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .data         00000000  0000000000000000  0000000000000000  0000008c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  0000000000000000  0000000000000000  0000008c  2**0
+                  ALLOC
+  3 .comment      00000013  0000000000000000  0000000000000000  0000008c  2**0
+                  CONTENTS, READONLY
+  4 .note.GNU-stack 00000000  0000000000000000  0000000000000000  0000009f  2**0
+                  CONTENTS, READONLY
+
+Disassembly of section .text:
+
+0000000000000000 <check>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 83 ec 10          	sub    $0x10,%rsp
+   8:	48 c7 c1 ed fb ff ff 	mov    $0xfffffffffffffbed,%rcx
+   f:	48 c7 c2 13 04 00 00 	mov    $0x413,%rdx
+  16:	48 c7 c6 ed fb ff ff 	mov    $0xfffffffffffffbed,%rsi
+  1d:	48 c7 c7 13 04 00 00 	mov    $0x413,%rdi
+  24:	e8 fa ff ff 7f       	call   80000023 <$d+0x8000000f>
+			25: R_X86_64_PC32	validate_neg-0x4
+  29:	48 89 c7             	mov    %rax,%rdi
+  2c:	48 bf 00 00 00 80 00 	movabs $0x80000000,%rdi
+  33:	00 00 00 
+  36:	e8 fa ff ff 7f       	call   80000035 <$d+0x80000021>
+			37: R_X86_64_PC32	validate_ptr-0x4
+  3b:	48 89 c7             	mov    %rax,%rdi
+  3e:	49 c7 c1 f7 f6 00 00 	mov    $0xf6f7,%r9
+  45:	49 c7 c0 e3 02 00 00 	mov    $0x2e3,%r8
+  4c:	b9 f3 00 00 00       	mov    $0xf3,%ecx
+  51:	48 c7 c2 47 46 00 00 	mov    $0x4647,%rdx
+  58:	48 c7 c6 13 04 00 00 	mov    $0x413,%rsi
+  5f:	bf 13 00 00 00       	mov    $0x13,%edi
+  64:	e8 fa ff ff 7f       	call   80000063 <$d+0x8000004f>
+			65: R_X86_64_PC32	validate-0x4
+  69:	48 89 c7             	mov    %rax,%rdi
+  6c:	bf 00 00 00 00       	mov    $0x0,%edi
+  71:	48 89 f8             	mov    %rdi,%rax
+  74:	c9                   	leave
+  75:	c3                   	ret

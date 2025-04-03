@@ -26,7 +26,7 @@ test-aarch64.o: %.o: %.c
 	$(AARCH_CC) $(AARCH_CFLAGS) -c $< -o $@
 
 test-aarch64-x64.o: test-aarch64.o
-	./converter $< $@
+	./../conv/converter.py $< $@
 
 clean:
 	rm -f *.o test

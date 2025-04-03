@@ -59,18 +59,18 @@ class Rela:
             offset_shift = None, 
             symbol = None, 
             type = None, 
-            addend = None,
+            addend_shift = None,
         ):
         if offset:
             self.unpacked_data[0] = offset
         if offset_shift:
-            self.unpacked_data[0] = self.unpacked_data[0] + offset_shift
+            self.unpacked_data[0] += offset_shift
         if symbol:
             self.sym = symbol
         if type:
             self.type = type 
-        if addend:
-            self.unpacked_data[2] = addend
+        if addend_shift:
+            self.unpacked_data[2] += addend_shift
 
         self.unpacked_data[1] = Rela.R_INFO(self.sym, Rela.code_types[self.type])
         

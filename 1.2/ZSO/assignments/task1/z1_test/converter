@@ -1,0 +1,3 @@
+#!/bin/bash 
+
+../conv/converter.py $1 $2

@@ -70,6 +70,12 @@ class Translator:
                 rela_section[code_arm_size].overwrite_rela(offset = code_x86_size)
 
             code_line_x86 = ParseInsn.parse(insn, rela_section)
+
+            # off = f"0x{insn.address:x}:\t" 
+            # code_line = f"{off}{insn.mnemonic}\t{insn.op_str}"
+            # print(code_line)
+            # print(code_line_x86)
+
             line_bytes, line_size = Translator.assemble_code(code_line_x86)
 
             code_x86 += code_line_x86 
@@ -103,7 +109,7 @@ class Translator:
             return bytes(encoding), len(encoding) 
 
         except keystone.KsError as e:
-            print("ERROR: %s" %e)
+            print(f"ERROR: {e} \nCODE: {code}")
 
     def debug_assemble(code):
         code = code.strip()

@@ -8,7 +8,8 @@ STEMS = data multiargs rodata recurse data-relocation loop
 FIXED_REGS = x6 x7 x8 x11 x12 x13 x14 x15 x16 x17 x18 x24 x25 x26 x27 x28
 
 X86_CC := x86_64-linux-gnu-gcc
-X86_OBJDUMP := x86_64-linux-gnu-objdump
+# X86_OBJDUMP := x86_64-linux-gnu-objdump
+X86_OBJDUMP := objdump
 
 AARCH_CC := aarch64-linux-gnu-gcc
 AARCH_OBJDUMP := aarch64-linux-gnu-objdump
