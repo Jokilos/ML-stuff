@@ -68,11 +68,7 @@ class Translator:
             idx86 = int(idx86)
             insn = lines_86[int(idx86)]
 
-            if insn.mnemonic == 'jmp':
-                off_from = int(off_from) + 5
-            else:
-                off_from = int(off_from) + 6
-
+            off_from = int(off_from) + len(insn.bytes)
             off_to = offset_dict[jump_to[i]]
             offset = off_to - off_from
             offset_packed = struct.pack('<i', offset)
