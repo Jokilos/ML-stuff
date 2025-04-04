@@ -11,9 +11,9 @@ plotly
 statsmodels
 matplotlib
 scikit-learn
-torch
-torchvision
-timm
+# torch
+# torchvision
+# timm
 clearml
 memory-profiler
 tdqm
@@ -21,21 +21,21 @@ nbimporter
 cairosvg
 nb-mypy
 ruff
-transformers
-sentencepiece
-accelerate
+# transformers
+# sentencepiece
+# accelerate
 seaborn
-tensorboard
+# tensorboard
 gradio
 langchain
 cohere
 datasets
-tensorflow
-keras
-tf-keras
+# tensorflow
+# keras
+# tf-keras
 capstone 
 keystone-engine
-torch_tb_profiler
-einops
-boto3
-dspy
+# torch_tb_profiler
+# einops
+# boto3
+# dspy

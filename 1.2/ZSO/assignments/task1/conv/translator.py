@@ -1,9 +1,11 @@
 import capstone
 import keystone
 import copy
+import struct
 from comparator import Comparator
 from parse_insn import ParseInsn
 from rela import Rela
+
 
 class Translator:
     prolog_x86 = """
@@ -35,8 +37,8 @@ class Translator:
         code_size = 8
         offset_dict = {0 : 0, code_size : code_x86_size}
         fixlines = []
+        linebytes = [i.bytes for i in lines_86]
         def linecount(x) : return len(x.splitlines())
-        def sign(x) : return hex(x) if x < 0 else f'+{hex(x)}'
 
         for insn in lines[2:-2]:
             if rela_section and insn.address in rela_section.keys():
@@ -47,7 +49,7 @@ class Translator:
             if code_line_x86[0] == 'j':
                 mnem = code_line_x86[:3].strip()
                 base_offset = lines_86[idx86].address
-                code_line_x86 = f'{mnem} {hex(base_offset)}\n'
+                code_line_x86 = f'{mnem} {base_offset} {idx86}\n'
                 fixlines += [idx86 + 1]
 
             lines = linecount(code_line_x86)
@@ -60,19 +62,26 @@ class Translator:
 
         code_x86 += Translator.epilog_x86
 
-        split = code_x86.splitlines()
+        code_split = code_x86.splitlines()
         for i, line in enumerate(fixlines):
-            mnem = split[line][:3].strip()
-            off_from = int(split[line][3:].strip(), base = 16)
-            off_to = jump_to[i]
+            mnem, off_from, idx86 = code_split[line].split()
+            idx86 = int(idx86)
+            insn = lines_86[int(idx86)]
 
-            if mnem == 'jmp':
-                # split[line] = f'{mnem} {hex(off_to - off_from)}]'
-                split[line] = f'{mnem} {hex(off_to)}'
+            if insn.mnemonic == 'jmp':
+                off_from = int(off_from) + 5
             else:
-                split[line] = f'{mnem} {hex(off_to)}'
+                off_from = int(off_from) + 6
+
+            off_to = offset_dict[jump_to[i]]
+            offset = off_to - off_from
+            offset_packed = struct.pack('<i', offset)
+
+            linebytes[idx86]= insn.bytes[:insn.imm_offset] + offset_packed
+
+        bytecode = b''.join(linebytes)
         
-        return '\n'.join(split), lines_86[-1].address + lines_86[-1].size
+        return bytecode, len(bytecode) 
 
     def pad_jumps(code_x86):
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
@@ -98,7 +107,7 @@ class Translator:
 
         jump_to = [] 
         for insn in inst_list:
-            if insn.mnemonic[0] == 'b':
+            if insn.mnemonic[0] == 'b' and insn.mnemonic[:2] != 'bl':
                 code_line_x86 = ParseInsn.parse(insn, None)
                 to_insn = int(code_line_x86[3:].strip(), base = 16)
                 jump_to += [to_insn] 
@@ -106,7 +115,7 @@ class Translator:
                 mnem = code_line_x86[:3].strip()
 
                 if mnem == 'jmp':
-                    code_x86 += f'{mnem} [rip + 0x7fffffff]\n'
+                    code_x86 += f'{mnem} 0x7fffffff\n'
                 else:
                     code_x86 += f'{mnem} 0x7fffffff\n'
             else:
@@ -142,28 +151,22 @@ class Translator:
             copy.deepcopy(rela_section),
         )
 
-        code86, code86len = Translator.translate_lines(
+        bytecode, bcodelen = Translator.translate_lines(
             inst_list,
             inst_list86,
             rela_section,
             jump_to,
         )
+        
+        if verbose:
+            Translator.disassemble_code(
+                bytecode,
+                show_offsets=True,
+                x86=True,
+                show_bytes=True,
+                verbose=True,
+            )
 
-        # bytecode, _ = Translator.debug_assemble(code86) 
-        bytecode, bcodelen = Translator.assemble_code(code86) 
-        bytecode, bcodelen = Translator.pad_jumps(bytecode) 
-
-        Translator.disassemble_code(
-            bytecode,
-            show_offsets=True,
-            x86=True,
-            show_bytes=True,
-            verbose=True,
-        )
-        for i in inst_list86:
-            print(hex(i.address), i.mnemonic)
-
-        assert bcodelen == code86len, (bcodelen, code86len) 
         return bytecode, bcodelen
 
     def assemble_code(code, verbose = False):
@@ -192,7 +195,7 @@ class Translator:
             for l in code.splitlines():
                 print(l, end='')
                 encoding, count = ks.asm(l)
-                print(f' = {encoding}')
+                print(f' = {[hex(e) for e in encoding]}')
 
         except keystone.KsError as e:
             print("ERROR: %s" %e)
@@ -227,47 +230,4 @@ class Translator:
         
         return code
 
-    # def translate_code_old(
-    #         code_section,
-    #         p_shift,
-    #         rela_section : dict[int, Rela] = None,
-    #         verbose = False,
-    #     ):
-    #     md = capstone.Cs(capstone.CS_ARCH_ARM64, capstone.CS_MODE_ARM)
-    #     md.detail = True
-    #     instructions = md.disasm(code_section, 0)
-
-    #     inst_list = []
-    #     for insn in instructions:
-    #         inst_list += [insn]
-
-    #     jump_dict = Translator.jump_dict_gen(inst_list[2:-2])
-
-    #     code_x86, code_x86_size = Translator.translate_lines(
-    #         inst_list[2:-2],
-    #         p_shift,
-    #         jump_dict,
-    #         rela_section
-    #     )
-
-    #     _, epi_size = Translator.assemble_code(Translator.epilog_x86)
-
-    #     code_x86 += Translator.epilog_x86 
-    #     code_x86_size += epi_size
-
-    #     if verbose:
-    #         print(f'{code_x86_size=}')
-    #         print(jump_dict)
-
-    #     print(code_x86)
-
-    #     code_x86_bytes, _ = Translator.assemble_code(code_x86)
-
-    #     code_x86_bytes, final_size = Translator.pad_jumps(code_x86_bytes)
-
-    #     # Translator.disassemble_code(code_x86_bytes, x86=True, show_bytes=True, verbose=True)
-
-    #     assert final_size == code_x86_size, (final_size, code_x86_size)
-
-    #     return code_x86_bytes, code_x86_size
 
