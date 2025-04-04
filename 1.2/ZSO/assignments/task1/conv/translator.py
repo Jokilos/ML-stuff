@@ -85,25 +85,6 @@ class Translator:
         
         return bytecode, len(bytecode) 
 
-    def pad_jumps(code_x86):
-        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
-        instructions = md.disasm(code_x86, 0)
-
-        def pad(b, num):
-            return b + b'\x90' * (num - len(b))
-                
-        bytes_x86  = b'' 
-        for insn in instructions:
-            mnem = insn.mnemonic
-            if mnem[:3] == 'jmp':
-                bytes_x86 += pad(bytes(insn.bytes), 5)
-            elif mnem[0] == 'j':
-                bytes_x86 += pad(bytes(insn.bytes), 6)
-            else:
-                bytes_x86 += bytes(insn.bytes)
-                
-        return bytes_x86, len(bytes_x86) 
-
     def assemble_whole(inst_list, offset_x86, rela_dict):
         code_x86 = Translator.prolog_x86
 
@@ -188,20 +169,6 @@ class Translator:
         except keystone.KsError as e:
             print(f"ERROR: {e} \nCODE: {code}")
 
-    def debug_assemble(code):
-        code = code.strip()
-
-        try:
-            ks = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_64)
-
-            for l in code.splitlines():
-                print(l, end='')
-                encoding, count = ks.asm(l)
-                print(f' = {[hex(e) for e in encoding]}')
-
-        except keystone.KsError as e:
-            print("ERROR: %s" %e)
-
     def disassemble_code(
             code_section, 
             show_offsets = True, 
@@ -209,7 +176,6 @@ class Translator:
             show_bytes = False,
             verbose = False,
         ):
-        # AArch64 architecture
         if x86:
             md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
         else:

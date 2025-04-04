@@ -44,26 +44,6 @@ class Comparator:
         compiled_pattern = re.compile(unified_pattern, re.IGNORECASE)
         return compiled_pattern.search(unified_code)
 
-    # def count_lines(chars, code, from_end = False):
-    #     lengths = []
-    #     for line in code.splitlines():
-    #         length = 0
-    #         for word in line.split():
-    #             length += len(word)
-    #         lengths += [length]
-
-    #     lengths = reversed(lengths) if from_end else lengths
-
-    #     lines = 0
-    #     for l in lengths:
-    #         if chars == 0:
-    #             return lines
-
-    #         chars -= l
-    #         lines += 1
-
-    #     assert False, 'Function detection failed'
-
     def check_function(code):
         match_p = Comparator.compare_part(code, True)
         match_e = Comparator.compare_part(code, False)

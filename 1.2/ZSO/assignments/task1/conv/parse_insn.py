@@ -213,7 +213,6 @@ class ParseInsn:
 
         imm = ptn.search(insn.op_str).groups()[0]
 
-        # return 'jmp 0xfffffff\n'
         return f'jmp {imm}\n'
     
     @staticmethod
@@ -223,5 +222,4 @@ class ParseInsn:
         imm = ptn.search(insn.op_str).groups()[0]
         cond = ParseInsn.cond_mapping[cond]
 
-        # return f'j{cond} 0xfffffff\n'
         return f'j{cond} {imm}\n'

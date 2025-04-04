@@ -2,19 +2,11 @@
 
 from elf_file import ElfFile
 import shutil
-
-# Error coloring
 import sys
-from IPython.core import ultratb
-sys.excepthook = ultratb.FormattedTB(color_scheme = 'Linux', call_pdb = False)
 
-# code = """mov esi, edi
-# .label:
-# jmp <.label + 0x10>
-# nop"""
-# from translator import Translator
-# print(Translator.assemble_code(code, True))
-# assert False
+# Optional error coloring
+# from IPython.core import ultratb
+# sys.excepthook = ultratb.FormattedTB(color_scheme = 'Linux', call_pdb = False)
 
 input = sys.argv[1]
 output = sys.argv[2]
