@@ -110,7 +110,7 @@ class ElfFile:
         for i, s in enumerate(ElfFile.symbols):
             if s.type == 'STT_FUNC': 
                 sh = ElfFile.section_headers[s.get('st_shndx')]
-                _, assembled = ElfFile.symbol_code_dict[i]
+                assembled, _ = ElfFile.symbol_code_dict[i]
 
                 ## TO DO ## fix to be more general
                 sh.section_data = sh.section_data[0 : s.get('st_value')] + \

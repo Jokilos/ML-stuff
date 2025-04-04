@@ -38,8 +38,8 @@ class Comparator:
         unified_pattern = Comparator.unify(pattern, True)
 
         if verbose: 
-            print(unified_code)
-            print(unified_pattern)
+            print(unified_code + '\n')
+            print(unified_pattern + '\n')
 
         compiled_pattern = re.compile(unified_pattern, re.IGNORECASE)
         return compiled_pattern.search(unified_code)
@@ -67,16 +67,16 @@ class Comparator:
     def check_function(code):
         match_p = Comparator.compare_part(code, True)
         match_e = Comparator.compare_part(code, False)
+        length = len(Comparator.unify(code))
 
         if match_p and match_e:
             span = (match_p.span()[0], match_e.span()[1])
 
             assert match_p.group(1) == match_p.group(1), "Prologue shift doesn't match"
 
-            if span == (0, len(code) - 1):
+            if span == (0, length):
                 return match_p.group(1) 
 
-            print(code)
-            assert False, (span, len(code) - 1, 'Assignment conditions not fullfilled.')
+            assert False, (span, length, 'Assignment conditions not fullfilled.')
             
         return None

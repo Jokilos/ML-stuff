@@ -46,7 +46,7 @@ class Translator:
         for insn in instructions:
             off = f"0x{insn.address:x}:\t" if show_offsets else ""
             if show_bytes:
-                code_line = f"{off} {insn.bytes} {insn.mnemonic}\t{insn.op_str}"
+                code_line = f"{off} {bytes(insn.bytes)} \t\t\t {insn.mnemonic}\t{insn.op_str}"
             else:
                 code_line = f"{off} {insn.mnemonic}\t{insn.op_str}"
 
@@ -82,6 +82,7 @@ class Translator:
 
             if insn.address in jump_dict.keys():
                 code_x86 += jump_dict[insn.address]
+                # print(jump_dict[insn.address])
 
             if code_line_x86[0] == 'j':
                 inst = code_line_x86[:3].strip()
@@ -93,7 +94,7 @@ class Translator:
 
             _, line_size = Translator.assemble_code(code_line_x86)
 
-            # print(f'{insn.address}: {code_line_x86_asm}')
+            # print(f'{hex(insn.address)}: {code_line_x86_asm}')
             code_x86 += code_line_x86_asm
             code_x86_size += line_size
 
@@ -102,6 +103,25 @@ class Translator:
             code_x86 += jump_dict[arm_code_size]
 
         return code_x86, code_x86_size
+
+    def pad_jumps(code_x86):
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
+        instructions = md.disasm(code_x86, 0)
+
+        def pad(b, num):
+            return b + b'\x90' * (num - len(b))
+                
+        bytes_x86  = b'' 
+        for insn in instructions:
+            mnem = insn.mnemonic
+            if mnem[:3] == 'jmp':
+                bytes_x86 += pad(bytes(insn.bytes), 5)
+            elif mnem[0] == 'j':
+                bytes_x86 += pad(bytes(insn.bytes), 6)
+            else:
+                bytes_x86 += bytes(insn.bytes)
+                
+        return bytes_x86, len(bytes_x86) 
 
     def translate_code(
             code_section,
@@ -131,12 +151,17 @@ class Translator:
         code_x86 += Translator.epilog_x86 
         code_x86_size += epi_size
 
-        print(f'{code_x86_size=}')
-        print(jump_dict)
+        if verbose:
+            print(f'{code_x86_size=}')
+            print(jump_dict)
 
-        code_x86_bytes, final_size = Translator.assemble_code(code_x86)
+        print(code_x86)
 
-        Translator.disassemble_code(code_x86_bytes, x86=True, show_bytes=True, verbose=True)
+        code_x86_bytes, _ = Translator.assemble_code(code_x86)
+
+        code_x86_bytes, final_size = Translator.pad_jumps(code_x86_bytes)
+
+        # Translator.disassemble_code(code_x86_bytes, x86=True, show_bytes=True, verbose=True)
 
         assert final_size == code_x86_size, (final_size, code_x86_size)
 
@@ -178,3 +203,76 @@ class Translator:
         except keystone.KsError as e:
             print("ERROR: %s" %e)
 
+    code_correct='''.jmp_label_0:
+push rbp
+mov rbp, rsp
+sub rsp, 0x40
+mov qword ptr [rsp + 0x38], 0
+mov qword ptr [rsp + 0x30], 0
+mov qword ptr [rsp + 0x28], 0
+jmp .jmp_label_0
+.jmp_label_3:
+mov rdi, qword ptr [rsp + 0x38]
+mov qword ptr [rsp + 0x20], rdi
+mov rdi, qword ptr [rsp + 0x20]
+mov qword ptr [rsp + 0x30], rdi
+mov rsi, qword ptr [rsp + 0x30]
+mov rdi, qword ptr [rsp + 0x20]
+add rdi, rsi
+mov qword ptr [rsp + 0x28], rdi
+mov rdi, qword ptr [rsp + 0x28]
+mov qword ptr [rsp + 0x20], rdi
+mov rdi, qword ptr [rsp + 0x20]
+mov qword ptr [rsp + 0x30], rdi
+mov rsi, qword ptr [rsp + 0x30]
+mov rdi, qword ptr [rsp + 0x20]
+add rdi, rsi
+mov qword ptr [rsp + 0x28], rdi
+mov rdi, qword ptr [rsp + 0x28]
+mov qword ptr [rsp + 0x20], rdi
+mov rdi, qword ptr [rsp + 0x20]
+mov qword ptr [rsp + 0x30], rdi
+mov rsi, qword ptr [rsp + 0x30]
+mov rdi, qword ptr [rsp + 0x20]
+add rdi, rsi
+mov qword ptr [rsp + 0x28], rdi
+mov rdi, qword ptr [rsp + 0x28]
+mov qword ptr [rsp + 0x20], rdi
+lea rdi, [rip + 0x7fffffff]
+and rdi, ~0xfff
+mov r10, 0x7fffffff
+and r10, 0xfff
+add rdi, r10
+mov qword ptr [rsp + 0x18], rdi
+mov rdi, qword ptr [rsp + 0x20]
+mov rsi, qword ptr [rsp + 0x18]
+add rdi, rsi
+mov qword ptr [rsp + 0x10], rdi
+mov rdi, qword ptr [rsp + 0x10]
+mov rdi, qword ptr [rdi]
+mov rsi, qword ptr [rsp + 0x38]
+cmp rsi, rdi
+je .jmp_label_1
+mov edi, -1
+jmp .jmp_label_2
+.jmp_label_1:
+mov rdi, qword ptr [rsp + 0x38]
+add rdi, 1
+mov qword ptr [rsp + 0x30], rdi
+mov rdi, qword ptr [rsp + 0x30]
+mov qword ptr [rsp + 0x38], rdi
+lea rdi, [rip + 0x7fffffff]
+and rdi, ~0xfff
+mov r10, 0x7fffffff
+and r10, 0xfff
+add rdi, r10
+mov rdi, qword ptr [rdi]
+mov rsi, qword ptr [rsp + 0x38]
+cmp rsi, rdi
+jl .jmp_label_3
+mov edi, 0
+.jmp_label_2:
+mov rax, rdi
+leave
+ret
+'''
