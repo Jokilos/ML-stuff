@@ -78,5 +78,5 @@ class Comparator:
                 return match_p.group(1) 
 
             assert False, (span, length, 'Assignment conditions not fullfilled.')
-            
+        
         return None

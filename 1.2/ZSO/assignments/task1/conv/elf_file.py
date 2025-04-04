@@ -94,29 +94,65 @@ class ElfFile:
                 sh.is_expanded = True
 
                 offset = s.get('st_value')
-                code = sh.section_data[offset : offset + s.get('st_size')]
+                bcode = sh.section_data[offset : offset + s.get('st_size')]
 
                 rela_name = b'.rela' + sh.name
                 exists = rela_name in ElfFile.rela_dict.keys()
                 rela = ElfFile.rela_dict[rela_name] if exists else None
-                
-                if p_shift := Translator.count_functions(code):
-                    ElfFile.symbol_code_dict[i] = Translator.translate_code(code, p_shift, rela)
+
+                if p_shift := Translator.count_functions(bcode):
+                    ElfFile.symbol_code_dict[i] = (bcode, p_shift, offset, rela)
                 else:
                     print("The function is not up to assignment specification.")
                     sys.exit(1)
 
     def overwrite_code_sections():
-        for i, s in enumerate(ElfFile.symbols):
-            if s.type == 'STT_FUNC': 
-                sh = ElfFile.section_headers[s.get('st_shndx')]
-                assembled, _ = ElfFile.symbol_code_dict[i]
+        from translator import Translator
 
-                ## TO DO ## fix to be more general
-                sh.section_data = sh.section_data[0 : s.get('st_value')] + \
-                    assembled + sh.section_data[s.get('st_value') + s.get('st_size') :]
-                
-                s.set('st_size', len(assembled))
+        for i in range(len(ElfFile.section_headers)):
+            sh = ElfFile.section_headers[i]
+
+            if sh.is_expanded:
+                symbols = [(num, s) for num, s in enumerate(ElfFile.symbols) if s.get('st_shndx') == i]
+                symbols = sorted(symbols, key = lambda s : s[1].get('st_value'))
+
+                section_data = b''
+                value = 0
+                for tup in symbols:
+                    num, s = tup
+
+                    if value < s.get('st_value'):
+                        section_data += sh.section_data[value : s.get('st_value')]
+                        value = s.get('sh_value')
+
+                    assert value == s.get('st_value')
+
+                    if s.type == 'STT_FUNC': 
+                        bcode, p_shift, offset_arm, rela = ElfFile.symbol_code_dict[num]
+                        assembled, _ = Translator.translate_code(
+                            bcode,
+                            p_shift,
+                            offset_arm,
+                            len(section_data),
+                            rela,
+                        )
+
+                        section_data += assembled
+                        value = s.get('st_value') + s.get('st_size')
+                        s.set('st_size', len(assembled))
+                        s.set('st_value', len(section_data) - s.get('st_size'))
+
+                    elif s.type == 'STT_NOTYPE' or s.type == 'STT_OBJECT':
+                        section_data += sh.section_data[value : value + s.get('st_size')]
+                        value = s.get('st_value') + s.get('st_size')
+                        s.set('st_value', len(section_data) - s.get('st_size'))
+
+                    else:
+                        section_data += sh.section_data[value : value + s.get('st_size')]
+                        value = s.get('st_value') + s.get('st_size')
+
+                sh.set('sh_size', len(section_data))
+                sh.section_data = section_data
 
     def remove_sections():
         from elf_header import ElfHeader

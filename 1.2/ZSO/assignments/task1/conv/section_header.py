@@ -66,9 +66,10 @@ class SectionHeader:
             self.print()
 
     def print(self):
+        print(self.name)
+        print(self.type)
         for i, f in enumerate(SectionHeader.fields):
             print(f'{f}: {self.unpacked_data[i]}')
-        print(self.type)
 
     def get(self, name):
         idx = SectionHeader.idx_dict[name]

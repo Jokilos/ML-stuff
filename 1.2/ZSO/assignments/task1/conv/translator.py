@@ -8,6 +8,12 @@ from rela import Rela
 
 
 class Translator:
+    prolog_x86_template = """
+    push rbp
+    mov rbp, rsp
+    sub rsp, #prologue_shift
+    """.replace('    ', '').strip() + '\n'
+
     prolog_x86 = """
     push rbp
     mov rbp, rsp
@@ -34,7 +40,7 @@ class Translator:
         idx86 = 3
         code_x86_size = lines_86[idx86].address
         code_x86 = '.jmp_label:\n' + Translator.prolog_x86
-        code_size = 8
+        code_size = lines[2].address
         offset_dict = {0 : 0, code_size : code_x86_size}
         fixlines = []
         linebytes = [i.bytes for i in lines_86]
@@ -98,7 +104,7 @@ class Translator:
                 
         return bytes_x86, len(bytes_x86) 
 
-    def assemble_whole(inst_list, rela_dict):
+    def assemble_whole(inst_list, offset_x86, rela_dict):
         code_x86 = Translator.prolog_x86
 
         jump_to = [] 
@@ -109,11 +115,7 @@ class Translator:
                 jump_to += [to_insn] 
 
                 mnem = code_line_x86[:3].strip()
-
-                if mnem == 'jmp':
-                    code_x86 += f'{mnem} 0x7fffffff\n'
-                else:
-                    code_x86 += f'{mnem} 0x7fffffff\n'
+                code_x86 += f'{mnem} 0x7fffffff\n'
             else:
                 code_x86 += ParseInsn.parse(insn, rela_dict) 
 
@@ -123,7 +125,7 @@ class Translator:
 
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
         md.detail = True
-        instructions86 = md.disasm(bytecode, 0)
+        instructions86 = md.disasm(bytecode, offset_x86)
 
         inst_list86 = [i for i in instructions86]
 
@@ -132,18 +134,21 @@ class Translator:
     def translate_code(
             code_section,
             p_shift,
+            offset_arm,
+            offset_x86,
             rela_section : dict[int, Rela] = None,
             verbose = False,
         ):
         Translator.prolog_x86 = Translator.prolog_x86.replace('#prologue_shift', p_shift)
         md = capstone.Cs(capstone.CS_ARCH_ARM64, capstone.CS_MODE_ARM)
         md.detail = True
-        instructions = md.disasm(code_section, 0)
+        instructions = md.disasm(code_section, offset_arm)
 
         inst_list = [i for i in instructions]
 
         inst_list86, jump_to = Translator.assemble_whole(
             inst_list[2:-2],
+            offset_x86,
             copy.deepcopy(rela_section),
         )
 
@@ -163,6 +168,7 @@ class Translator:
                 verbose=True,
             )
 
+        Translator.prolog_x86 = Translator.prolog_x86_template
         return bytecode, bcodelen
 
     def assemble_code(code, verbose = False):

@@ -147,7 +147,7 @@ class ParseInsn:
         return ParseInsn.mov_or_cmp(insn, 'cmp', rela)
 
     @staticmethod
-    def add(insn : capstone.CsInsn, rela : dict[int, Rela] = None):
+    def add(insn : capstone.CsInsn, rela : dict[int, Rela] = None, is_sub = False):
         ptn = f'{ParseInsn.reg_p}, ' 
         ptn += f'{ParseInsn.reg_p}, ' 
         ptn = re.compile(ptn + rf'{ParseInsn.str_p}')
@@ -168,15 +168,16 @@ class ParseInsn:
                     offset_shift = 3,    
                 )
             op3 = op3[1:]
-
+        
+        add_op = 'add' if not is_sub else 'sub'
         def add_opy_to_opx(opy, opx):
             if has_imm and has_rela:
                 tmp = 'r10' if ParseInsn.isreg64(op1_old) else 'r11d'
                 ret = f'mov {tmp}, 0x7fffffff\n' # the immediate is relocated
                 ret += f'and {tmp}, 0xfff\n'
-                ret += f'add {opx}, {tmp}\n'
+                ret += f'{add_op} {opx}, {tmp}\n'
             else:
-                ret = f'add {opx}, {opy}\n'
+                ret = f'{add_op} {opx}, {opy}\n'
 
             return ret
 
@@ -187,6 +188,10 @@ class ParseInsn:
         else:
             ret = f'mov {op1}, {op2}\n' 
             return ret + add_opy_to_opx(op3, op1)
+
+    @staticmethod
+    def sub(insn, rela):
+        return ParseInsn.add(insn, rela, True)
 
     @staticmethod
     def bl(insn : capstone.CsInsn, rela : dict[int, Rela] = None):
