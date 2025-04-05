@@ -21,6 +21,7 @@ ElfFile.read_rela()
 
 ElfFile.find_code_sections()
 ElfFile.overwrite_code_sections()
+ElfFile.check_rela()
 
 ElfFile.remove_sections()
 ElfFile.save_expanded_sections(output)
