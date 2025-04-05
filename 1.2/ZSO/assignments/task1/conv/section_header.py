@@ -56,7 +56,9 @@ class SectionHeader:
 
         sh_off = self.get('sh_offset')
         self.section_data = ElfFile.data[sh_off : sh_off + self.get('sh_size')]
-        self.type = SectionHeader.sh_types[self.get('sh_type')]
+
+        self.type = SectionHeader[self.get('sh_type')] \
+            if self.get('sh_type') in SectionHeader.sh_types else "UNKNOWN"
 
         self.name = None
         self.is_shstrs = False

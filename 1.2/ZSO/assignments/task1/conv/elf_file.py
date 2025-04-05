@@ -4,26 +4,40 @@ import sys
 class ElfFile:
     data = None
 
+    # List of SectionHeader objects
     section_headers = []
+    # List of headers after deletion of 
+    # specified headers
     new_section_headers = []
+    # Symbols present in the symtab
     symbols = []
+    # How to translate section indices after deletion
     sh_idx_translation = []
 
+    # Dict pointing from section name to list of Rela objects
     rela_dict = {}
-    symbol_code_dict = {}
+    # Dict keeping args for function tranlation 
+    symbol_overwrite_args_dict = {}
+    # Dict keeping SH objects for every section name
     sh_dict = {}
 
+    # Offset to section header string table
     shstroff = None
+    # Index of the symtab section
     symtab_idx = None
 
+    @staticmethod
     def setup(file_path):
         with open(file_path, 'rb') as f:
             ElfFile.data = f.read()
 
+    @staticmethod
     def read_elf_header():
         from elf_header import ElfHeader
         ElfHeader.read_elf_header()
 
+    # Read section headers and extract section names
+    @staticmethod
     def read_section_headers(verbose = False):
         from elf_header import ElfHeader
         from section_header import SectionHeader
@@ -47,6 +61,8 @@ class ElfFile:
             if verbose:
                 ElfFile.section_headers[i].print()
 
+    # Function for finding string is string tab and section header string tab
+    @staticmethod
     def find_string(relative_offset, sh_string = False):
         str_offset = relative_offset
 
@@ -61,7 +77,9 @@ class ElfFile:
         str = struct.unpack(f'{str_len}s', ElfFile.data[str_offset : str_end])[0]
 
         return str
-        
+    
+    # Read all symbols from symtab
+    @staticmethod
     def read_symbols():
         from sym import Sym
 
@@ -70,6 +88,8 @@ class ElfFile:
                 ElfFile.symtab_idx = i
                 ElfFile.symbols = Sym.collect_sym_entries(sh)
 
+    # Read all relocations
+    @staticmethod
     def read_rela():
         from rela import Rela
         from section_header import SectionHeader
@@ -79,17 +99,23 @@ class ElfFile:
             if sh.type == 'SHT_RELA' and not ignore_section:
                 rela_entries = Rela.collect_rela_entries(sh)
                 ElfFile.rela_dict[sh.name] = rela_entries
-            
+
+    # Functions that return SH, for a section name and `None` if such SH doesn't exist
+    @staticmethod
     def look_for_section(name):
         for sh in ElfFile.section_headers:
             if sh.name == name:
                 return sh
 
+    # Look for a rela section for a section
+    @staticmethod
     def look_for_rela(sh):
         rela_name = b'.rela' + sh.name
         exists = rela_name in ElfFile.rela_dict.keys()
         return ElfFile.rela_dict[rela_name] if exists else None
 
+    # Look through symbols and find all of them that are functions
+    @staticmethod
     def find_code_sections():
         from translator import Translator
 
@@ -104,11 +130,13 @@ class ElfFile:
                 rela = ElfFile.look_for_rela(sh)
 
                 if p_shift := Translator.count_functions(bcode):
-                    ElfFile.symbol_code_dict[i] = (bcode, p_shift, offset, rela)
+                    ElfFile.symbol_overwrite_args_dict[i] = (bcode, p_shift, offset, rela)
                 else:
                     print("The function is not up to assignment specification.")
                     sys.exit(1)
 
+    # Overwrites all functions and fixes all the offsets that change in the process
+    @staticmethod
     def overwrite_code_sections():
         from section_header import SectionHeader
 
@@ -130,6 +158,8 @@ class ElfFile:
             elif not SectionHeader.delete_pattern.search(sh.name.decode()):
                 ElfFile.fix_nonfun_rela(sh, 0, 0, len(sh.section_data))
 
+    # Overwrite section that is gonna change its size, because of the code translation
+    @staticmethod
     def overwrite_section(sh, section_data, value, symbol_num, symbol):
         from translator import Translator
 
@@ -140,7 +170,7 @@ class ElfFile:
         assert value == symbol.get('st_value')
 
         if symbol.type == 'STT_FUNC': 
-            bcode, p_shift, offset_arm, rela = ElfFile.symbol_code_dict[symbol_num]
+            bcode, p_shift, offset_arm, rela = ElfFile.symbol_overwrite_args_dict[symbol_num]
             assembled, _ = Translator.translate_code(
                 bcode,
                 p_shift,
@@ -167,6 +197,8 @@ class ElfFile:
 
         return section_data, value
 
+    # Fix relocations that are present outside of the functions
+    @staticmethod
     def fix_nonfun_rela(sh, new_value, old_value, size):
         from rela import Rela
 
@@ -190,14 +222,17 @@ class ElfFile:
                     offset_shift = new_value - old_value,
                 )
 
-    # Unused, but may be useful for debugging
+    # Essentially unnecessary, but may be useful for debugging
+    @staticmethod
     def check_rela():
         for r in ElfFile.rela_dict.values():
             for r_ent in r.values():
                 import re
                 if re.compile('R_AARCH64', 0).search(r_ent.type):
-                    assert False 
+                    print("AARCH relocation still present in rela structure")
 
+    # Removes *.eh_frame and .note.gnu.property sections
+    @staticmethod
     def remove_sections():
         from elf_header import ElfHeader
         from section_header import SectionHeader 
@@ -223,6 +258,8 @@ class ElfFile:
 
         ElfFile.new_section_headers = new_section_headers
 
+    # Saves expanded sections after all unedited sections, moves section headers
+    @staticmethod
     def save_expanded_sections(file):
         from elf_header import ElfHeader
 
@@ -242,6 +279,8 @@ class ElfFile:
         for sh in ElfFile.new_section_headers:
             current_offset = sh.save(file, current_offset)
 
+    # Saves relocations and symbols
+    @staticmethod
     def save_rela_and_sym(file):
         from rela import Rela
         from sym import Sym
@@ -252,6 +291,8 @@ class ElfFile:
 
         Sym.save(file, ElfFile.section_headers[ElfFile.symtab_idx], ElfFile.symbols)
 
+    # Saves elf header
+    @staticmethod
     def save_header(file):
         from elf_header import ElfHeader
 

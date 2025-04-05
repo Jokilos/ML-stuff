@@ -8,6 +8,9 @@ import sys
 # from IPython.core import ultratb
 # sys.excepthook = ultratb.FormattedTB(color_scheme = 'Linux', call_pdb = False)
 
+# Turn off assertions
+__debug__ = False
+
 input = sys.argv[1]
 output = sys.argv[2]
 

@@ -16,6 +16,7 @@ class Comparator:
 
     escape_chars = '[]'
 
+    @staticmethod
     def unify(text, pattern = False):
         if pattern:
             for char in Comparator.escape_chars:
@@ -31,6 +32,7 @@ class Comparator:
 
         return unified 
     
+    @staticmethod
     def compare_part(code, is_prolog = True, verbose = False):
         unified_code = Comparator.unify(code)
 
@@ -44,6 +46,7 @@ class Comparator:
         compiled_pattern = re.compile(unified_pattern, re.IGNORECASE)
         return compiled_pattern.search(unified_code)
 
+    @staticmethod
     def check_function(code):
         match_p = Comparator.compare_part(code, True)
         match_e = Comparator.compare_part(code, False)

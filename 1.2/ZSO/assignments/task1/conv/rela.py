@@ -23,14 +23,17 @@ class Rela:
     idx_dict = make_idx_dict(fields)
 
     #define ELF64_R_SYM(i)((i) >> 32)
+    @staticmethod
     def R_SYM(i):
         return i >> 32
     
     #define ELF64_R_TYPE(i)((i) & 0xf f f f f f f f L)
+    @staticmethod
     def R_TYPE(i):
         return i & 0xffffffff
 
     #define ELF64_R_INFO(s, t)(((s) << 32) + ((t) & 0xf f f f f f f f L))
+    @staticmethod
     def R_INFO(s, t):
         return (s << 32) + (t & 0xffffffff)
 
@@ -78,6 +81,7 @@ class Rela:
         idx = Rela.idx_dict[name]
         return self.unpacked_data[idx]
 
+    @staticmethod
     def collect_rela_entries(sh):
         base_offset = offset = sh.get('sh_offset')
         size = sh.get('sh_size')
@@ -94,6 +98,7 @@ class Rela:
 
         return rela_entries
 
+    @staticmethod
     def save(file, sh, rela_entries):
         data = b''
 

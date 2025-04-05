@@ -26,10 +26,12 @@ class Translator:
     ret
     """.replace('    ', '').strip() + '\n'
 
+    @staticmethod
     def count_functions(code_section):
         code = Translator.disassemble_code(code_section, show_offsets = False)
         return Comparator.check_function(code)
 
+    @staticmethod
     def translate_lines(
             lines : list[capstone.CsInsn],
             lines_86 : list[capstone.CsInsn],
@@ -85,6 +87,7 @@ class Translator:
         
         return bytecode, len(bytecode) 
 
+    @staticmethod
     def assemble_whole(inst_list, offset_x86, rela_dict):
         code_x86 = Translator.prolog_x86
 
@@ -112,6 +115,7 @@ class Translator:
 
         return inst_list86, jump_to 
 
+    @staticmethod
     def translate_code(
             code_section,
             p_shift,
@@ -152,6 +156,7 @@ class Translator:
         Translator.prolog_x86 = Translator.prolog_x86_template
         return bytecode, bcodelen
 
+    @staticmethod
     def assemble_code(code, verbose = False):
         # separate assembly instructions by ; or \n
         code = code.strip()
@@ -169,6 +174,7 @@ class Translator:
         except keystone.KsError as e:
             print(f"ERROR: {e} \nCODE: {code}")
 
+    @staticmethod
     def disassemble_code(
             code_section, 
             show_offsets = True, 

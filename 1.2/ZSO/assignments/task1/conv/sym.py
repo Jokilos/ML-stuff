@@ -49,6 +49,7 @@ class Sym:
         if(verbose):
             self.print()
 
+    @staticmethod
     def get_binding_and_type(st_info):
         binding = (st_info >> 4) & 0xF  
         symbol_type = st_info & 0xF
@@ -61,9 +62,6 @@ class Sym:
 
         print(self.name, self.binding, self.type)
 
-    def overwrite_sym(self, offset):
-        pass
-
     def get(self, name):
         idx = Sym.idx_dict[name]
         return self.unpacked_data[idx]
@@ -72,6 +70,7 @@ class Sym:
         idx = Sym.idx_dict[name]
         self.unpacked_data[idx] = value
 
+    @staticmethod
     def collect_sym_entries(sh):
         base_offset = offset = sh.get('sh_offset')
         size = sh.get('sh_size')
@@ -84,6 +83,7 @@ class Sym:
 
         return sym_entries
 
+    @staticmethod
     def save(file, sh, rela_entries):
         data = b''
 

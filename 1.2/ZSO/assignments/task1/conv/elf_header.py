@@ -36,24 +36,29 @@ class ElfHeader:
         'H H'
     )
 
+    @staticmethod
     def print():
         for i, f in enumerate(ElfHeader.fields):
             print(f'{f}: {ElfHeader.unpacked_data[i]}')
     
+    @staticmethod
     def read_elf_header():
         if ElfFile.data[:4] != b'\x7fELF':
             raise ValueError("Not a valid ELF file.")
         
         ElfHeader.unpacked_data = list(struct.unpack(ElfHeader.format, ElfFile.data[:Const.HEADER_SIZE]))
 
+    @staticmethod
     def save(file):
         packed_data = struct.pack(ElfHeader.format, *ElfHeader.unpacked_data)
         overwrite_file(file, 0, packed_data)
 
+    @staticmethod
     def get(name):
         idx = ElfHeader.idx_dict[name]
         return ElfHeader.unpacked_data[idx]
 
+    @staticmethod
     def set(name, value):
         idx = ElfHeader.idx_dict[name]
         ElfHeader.unpacked_data[idx] = value
