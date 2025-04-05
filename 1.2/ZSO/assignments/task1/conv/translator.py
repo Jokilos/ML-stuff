@@ -26,11 +26,13 @@ class Translator:
     ret
     """.replace('    ', '').strip() + '\n'
 
+    # Checks if a function is up to assignment assumptions and returns prologue_shift
     @staticmethod
-    def count_functions(code_section):
+    def check_function(code_section):
         code = Translator.disassemble_code(code_section, show_offsets = False)
         return Comparator.check_function(code)
 
+    # Fix relocations and jumps offsets, produce final translated bytecode
     @staticmethod
     def translate_lines(
             lines : list[capstone.CsInsn],
@@ -41,7 +43,7 @@ class Translator:
 
         idx86 = 3
         code_x86_size = lines_86[idx86].address
-        code_x86 = '.jmp_label:\n' + Translator.prolog_x86
+        code_x86 = Translator.prolog_x86
         code_size = lines[2].address
         offset_dict = {0 : 0, code_size : code_x86_size}
         fixlines = []

@@ -129,7 +129,7 @@ class ElfFile:
 
                 rela = ElfFile.look_for_rela(sh)
 
-                if p_shift := Translator.count_functions(bcode):
+                if p_shift := Translator.check_function(bcode):
                     ElfFile.symbol_overwrite_args_dict[i] = (bcode, p_shift, offset, rela)
                 else:
                     print("The function is not up to assignment specification.")
