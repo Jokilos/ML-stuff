@@ -1,6 +1,6 @@
 import re
 import struct
-from tools import two_way_dict, make_idx_dict, overwrite_file
+from tools import two_way_dict, make_idx_dict, overwrite_file, dict_safe_get
 from elf_file import ElfFile
 from elf_header import ElfHeader
 
@@ -57,8 +57,7 @@ class SectionHeader:
         sh_off = self.get('sh_offset')
         self.section_data = ElfFile.data[sh_off : sh_off + self.get('sh_size')]
 
-        self.type = SectionHeader[self.get('sh_type')] \
-            if self.get('sh_type') in SectionHeader.sh_types else "UNKNOWN"
+        self.type = dict_safe_get(SectionHeader.sh_types, self.get('sh_type'))
 
         self.name = None
         self.is_shstrs = False

@@ -60,7 +60,7 @@ class Translator:
                 mnem = code_line_x86[:3].strip()
                 base_offset = lines_86[idx86].address
                 code_line_x86 = f'{mnem} {base_offset} {idx86}\n'
-                fixlines += [idx86 + 1]
+                fixlines += [idx86]
 
             lines = linecount(code_line_x86)
             idx86 += lines
