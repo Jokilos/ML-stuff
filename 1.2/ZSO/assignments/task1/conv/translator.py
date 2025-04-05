@@ -87,6 +87,7 @@ class Translator:
         
         return bytecode, len(bytecode) 
 
+    # Assemble translated code and dissasemble it back 
     @staticmethod
     def assemble_whole(inst_list, offset_x86, rela_dict):
         code_x86 = Translator.prolog_x86
@@ -115,6 +116,7 @@ class Translator:
 
         return inst_list86, jump_to 
 
+    # Translare AARCH64 code section into AMD64
     @staticmethod
     def translate_code(
             code_section,
@@ -155,7 +157,8 @@ class Translator:
 
         Translator.prolog_x86 = Translator.prolog_x86_template
         return bytecode, bcodelen
-
+    
+    # Assembles provided code into x86 bytecode and its length
     @staticmethod
     def assemble_code(code, verbose = False):
         # separate assembly instructions by ; or \n
@@ -174,6 +177,7 @@ class Translator:
         except keystone.KsError as e:
             print(f"ERROR: {e} \nCODE: {code}")
 
+    # Returns dissasembled code in a form of a string
     @staticmethod
     def disassemble_code(
             code_section, 

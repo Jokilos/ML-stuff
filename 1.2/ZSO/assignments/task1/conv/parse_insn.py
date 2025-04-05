@@ -189,6 +189,7 @@ class ParseInsn:
             ret = f'mov {op1}, {op2}\n' 
             return ret + add_opy_to_opx(op3, op1)
 
+    # Not strictly required in the assignment, but makes the solution more general
     @staticmethod
     def sub(insn, rela):
         return ParseInsn.add(insn, rela, True)

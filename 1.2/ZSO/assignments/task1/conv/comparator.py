@@ -46,6 +46,7 @@ class Comparator:
         compiled_pattern = re.compile(unified_pattern, re.IGNORECASE)
         return compiled_pattern.search(unified_code)
 
+    # Checks if the function code is compliant with assignment assumptions
     @staticmethod
     def check_function(code):
         match_p = Comparator.compare_part(code, True)
