@@ -85,6 +85,11 @@ class ElfFile:
             if sh.name == name:
                 return sh
 
+    def look_for_rela(sh):
+        rela_name = b'.rela' + sh.name
+        exists = rela_name in ElfFile.rela_dict.keys()
+        return ElfFile.rela_dict[rela_name] if exists else None
+
     def find_code_sections():
         from translator import Translator
 
@@ -96,9 +101,7 @@ class ElfFile:
                 offset = s.get('st_value')
                 bcode = sh.section_data[offset : offset + s.get('st_size')]
 
-                rela_name = b'.rela' + sh.name
-                exists = rela_name in ElfFile.rela_dict.keys()
-                rela = ElfFile.rela_dict[rela_name] if exists else None
+                rela = ElfFile.look_for_rela(sh)
 
                 if p_shift := Translator.count_functions(bcode):
                     ElfFile.symbol_code_dict[i] = (bcode, p_shift, offset, rela)
@@ -107,6 +110,8 @@ class ElfFile:
                     sys.exit(1)
 
     def overwrite_code_sections():
+        from section_header import SectionHeader
+
         for i in range(len(ElfFile.section_headers)):
             sh = ElfFile.section_headers[i]
 
@@ -121,6 +126,9 @@ class ElfFile:
 
                 sh.set('sh_size', len(section_data))
                 sh.section_data = section_data
+
+            elif not SectionHeader.delete_pattern.search(sh.name.decode()):
+                ElfFile.fix_nonfun_rela(sh, 0, 0, len(sh.section_data))
 
     def overwrite_section(sh, section_data, value, symbol_num, symbol):
         from translator import Translator
@@ -146,25 +154,49 @@ class ElfFile:
             symbol.set('st_size', len(assembled))
             symbol.set('st_value', len(section_data) - symbol.get('st_size'))
 
-        elif symbol.type == 'STT_NOTYPE' or symbol.type == 'STT_OBJECT':
-            section_data += sh.section_data[value : value + symbol.get('st_size')]
-            value = symbol.get('st_value') + symbol.get('st_size')
-            symbol.set('st_value', len(section_data) - symbol.get('st_size'))
-
         else:
-            section_data += sh.section_data[value : value + symbol.get('st_size')]
-            value = symbol.get('st_value') + symbol.get('st_size')
+            ElfFile.fix_nonfun_rela(sh, len(section_data), value, symbol.get('st_size'))
+
+            if symbol.type in ['STT_NOTYPE', 'STT_OBJECT']:
+                section_data += sh.section_data[value : value + symbol.get('st_size')]
+                value = symbol.get('st_value') + symbol.get('st_size')
+                symbol.set('st_value', len(section_data) - symbol.get('st_size'))
+            else:
+                section_data += sh.section_data[value : value + symbol.get('st_size')]
+                value = symbol.get('st_value') + symbol.get('st_size')
 
         return section_data, value
 
+    def fix_nonfun_rela(sh, new_value, old_value, size):
+        from rela import Rela
+
+        rela = ElfFile.look_for_rela(sh)
+
+        if rela:
+            rela_offsets = rela.keys()
+            keys_in_section = [
+                off for off in rela_offsets
+                if off >= old_value and off < old_value + size
+            ]
+
+            for k in keys_in_section:
+                rela_entry : Rela = rela[k]
+
+                assert rela_entry.type == 'R_AARCH64_ABS64', \
+                    f"Unknown relocation type: {rela_entry.type}"
+                
+                rela_entry.overwrite_rela(
+                    type = 'R_AMD64_64',
+                    offset_shift = new_value - old_value,
+                )
+
+    # Unused, but may be useful for debugging
     def check_rela():
         for r in ElfFile.rela_dict.values():
             for r_ent in r.values():
                 import re
-                print(r_ent.type)
                 if re.compile('R_AARCH64', 0).search(r_ent.type):
-                    pass
-                    # assert False
+                    assert False 
 
     def remove_sections():
         from elf_header import ElfHeader
