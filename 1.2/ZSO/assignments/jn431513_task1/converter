@@ -1,6 +1,0 @@
-#!/bin/bash 
-
-source venv/bin/activate
-
-./conv/converter.py $1 $2
-
